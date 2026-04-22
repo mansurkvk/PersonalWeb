@@ -1,6 +1,6 @@
 {
-  "name": "simple-vercel-app",
-  "version": "1.0.0",
+  "name": "PersonalWeb",
+  "version": "2.5.0",
   "scripts": {
     "start": "vercel dev"
   }

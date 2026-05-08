@@ -10,10 +10,25 @@ import { listLatestReadings } from "@/repositories/telemetry.repository";
 export const dynamic = "force-dynamic";
 
 const architectureSteps = [
-  { icon: Radio, title: "ESP32 / Robot", text: "Device key ile HTTP ingest, ileride MQTT broker." },
-  { icon: Server, title: "Next.js API", text: "Serverless route, validation, service katmani." },
-  { icon: Database, title: "MongoDB", text: "Telemetry readings, devices, broker outbox." },
-  { icon: Activity, title: "Dashboard", text: "Periyodik refresh, history ve raw payload preview." }
+  { icon: Radio, title: "Device", text: "ESP32, robot platformlari ve sensor katmani." },
+  { icon: Server, title: "API", text: "Validation, service akisi ve temiz backend mantigi." },
+  { icon: Database, title: "Data", text: "MongoDB uzerinde telemetry, proje ve icerik kayitlari." },
+  { icon: Activity, title: "Interface", text: "Dashboard, lab panelleri ve teknik yayin arayuzleri." }
+];
+
+const focusBlocks = [
+  {
+    title: "Robotics Systems",
+    text: "Hareket eden, algilayan ve veri ureten robotik sistemler. Servo mimarisi, guc dagitimi, gomulu kontrol ve mekanik tasarim tek bir muhendislik butunu olarak ele alinir."
+  },
+  {
+    title: "Telemetry Infrastructure",
+    text: "ESP32 tabanli cihazlardan gelen veriler okunabilir dashboardlara, kayit sistemlerine ve gelecekte broker tabanli gercek zamanli altyapilara donusur."
+  },
+  {
+    title: "Experimental Engineering",
+    text: "Fiziksel sezgi, teorik dusunce ve prototipleme bir arada kullanilir. Amac yalnizca gorsel bir portfolyo degil, gelisen bir teknik laboratuvar kurmaktir."
+  }
 ];
 
 function sampleReading() {
@@ -45,8 +60,32 @@ export default async function HomePage() {
     <>
       <Hero />
 
-      <section className="mx-auto grid max-w-7xl gap-6 px-4 py-16 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:px-8">
-        <SectionCard title="Live telemetry preview" eyebrow={isSample ? "Sample Data" : "Live Data"}>
+      <section className="page-section mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
+        <div className="grid gap-6 lg:grid-cols-[0.78fr_1.22fr] lg:items-end">
+          <div>
+            <p className="font-mono-lab text-xs uppercase tracking-[0.28em] text-[#8bd3dd]">What this is</p>
+            <h2 className="mt-4 max-w-2xl text-4xl font-semibold leading-tight tracking-[-0.045em] text-white sm:text-5xl">
+              Not just a portfolio. A growing engineering platform.
+            </h2>
+          </div>
+          <p className="max-w-2xl text-base leading-8 text-slate-300 lg:justify-self-end">
+            PersonalWeb; robotik projeler, telemetry akislari, deneysel fikirler, teknik notlar ve IoT arayuzlerini ayni teknik kimlik altinda toplayan uzun vadeli bir muhendislik laboratuvaridir.
+          </p>
+        </div>
+
+        <div className="mt-12 grid gap-5 lg:grid-cols-3">
+          {focusBlocks.map((item, index) => (
+            <div key={item.title} className="glass-panel motion-card rounded-[2.2rem] p-7" style={{ animationDelay: `${index * 100}ms` }}>
+              <p className="font-mono-lab text-[10px] uppercase tracking-[0.24em] text-slate-500">0{index + 1}</p>
+              <h3 className="mt-8 text-2xl font-semibold tracking-tight text-white">{item.title}</h3>
+              <p className="mt-4 text-sm leading-7 text-slate-400">{item.text}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="page-section mx-auto grid max-w-7xl gap-6 px-4 pb-24 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8">
+        <SectionCard title="Live telemetry" eyebrow={isSample ? "Sample Data" : "Live Data"}>
           <div className="grid gap-4 sm:grid-cols-2">
             <Metric label="Device" value={latest.deviceId} />
             <Metric label="Status" value={latest.deviceStatus ?? "unknown"} />
@@ -54,21 +93,23 @@ export default async function HomePage() {
             <Metric label="Battery" value={`${latest.batteryPercent ?? "N/A"}%`} />
           </div>
           <p className="mt-5 text-sm leading-6 text-slate-400">
-            {isSample ? "Gercek ESP32 verisi gelene kadar bu alan sample data gosterir." : "Bu alan MongoDB uzerindeki son telemetry kaydindan beslenir."}
+            {isSample ? "Gercek cihaz verisi gelene kadar sample telemetry gosterilir." : "Bu alan MongoDB uzerindeki son telemetry kaydindan beslenir."}
           </p>
-          <Link href="/esp" className="mt-5 inline-block text-[#8bd3dd] hover:text-white">Dashboard sayfasina git</Link>
+          <Link href="/esp" className="mt-6 inline-flex rounded-full border border-[#8bd3dd]/30 bg-[#8bd3dd]/10 px-5 py-3 text-sm font-semibold text-[#c9f8ff] transition hover:bg-[#8bd3dd]/18 hover:text-white">
+            Dashboarda Git
+          </Link>
         </SectionCard>
 
-        <SectionCard title="Device status preview" eyebrow="IoT Control">
-          <div className="rounded-[1.6rem] border border-white/10 bg-black/20 p-5">
+        <SectionCard title="Control surface" eyebrow="IoT Control">
+          <div className="engineering-surface rounded-[1.6rem] border border-white/10 p-5">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-slate-400">Connection</p>
-                <p className="mt-1 text-2xl font-semibold text-white">{latest.deviceStatus ?? "standby"}</p>
+                <p className="font-mono-lab text-[10px] uppercase tracking-[0.22em] text-slate-500">Connection</p>
+                <p className="mt-2 text-3xl font-semibold tracking-tight text-white">{latest.deviceStatus ?? "standby"}</p>
               </div>
               <Cpu className="size-10 text-[#8bd3dd]" />
             </div>
-            <div className="mt-6 grid grid-cols-3 gap-3 text-center text-sm">
+            <div className="mt-7 grid grid-cols-3 gap-3 text-center text-sm">
               <Metric label="Volt" value={`${latest.voltage ?? "N/A"}V`} compact />
               <Metric label="Amp" value={`${latest.current ?? "N/A"}A`} compact />
               <Metric label="RSSI" value={`${latest.signalStrength ?? "N/A"}`} compact />
@@ -77,10 +118,19 @@ export default async function HomePage() {
         </SectionCard>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
+      <section className="page-section mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
+        <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="font-mono-lab text-xs uppercase tracking-[0.28em] text-[#8bd3dd]">Architecture</p>
+            <h2 className="mt-4 text-3xl font-semibold tracking-tight text-white sm:text-4xl">From device data to engineering interface.</h2>
+          </div>
+          <p className="max-w-xl text-sm leading-7 text-slate-400">
+            Sistem yalnizca gorunum degil; API, veri katmani, dashboard ve gelecekteki broker yapisi icin genisleyebilir bir temel sunar.
+          </p>
+        </div>
         <div className="grid gap-6 lg:grid-cols-4">
-          {architectureSteps.map((step) => (
-            <div key={step.title} className="glass-panel rounded-[2rem] p-6">
+          {architectureSteps.map((step, index) => (
+            <div key={step.title} className="glass-panel motion-card rounded-[2rem] p-6" style={{ animationDelay: `${index * 90}ms` }}>
               <step.icon className="size-6 text-[#d5b46a]" />
               <h2 className="mt-5 text-xl font-semibold text-white">{step.title}</h2>
               <p className="mt-2 text-sm leading-6 text-slate-400">{step.text}</p>
@@ -89,40 +139,47 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-7xl gap-6 px-4 pb-16 sm:px-6 lg:grid-cols-2 lg:px-8">
-        <SectionCard title="Featured projects" eyebrow="Engineering Work">
+      <section className="page-section mx-auto grid max-w-7xl gap-6 px-4 pb-24 sm:px-6 lg:grid-cols-2 lg:px-8">
+        <SectionCard title="Selected projects" eyebrow="Engineering Work">
           <div className="grid gap-3">
             {(projects.length ? projects : []).map((project) => (
-              <Link key={String(project._id)} href={`/projects/${project.slug}`} className="rounded-2xl border border-white/10 bg-white/[0.035] p-4 text-sm text-slate-300 hover:bg-white/[0.07]">
+              <Link key={String(project._id)} href={`/projects/${project.slug}`} className="rounded-2xl border border-white/10 bg-black/30 p-4 text-sm text-slate-300 transition hover:border-[#8bd3dd]/30 hover:bg-white/[0.07]">
                 <span className="block font-semibold text-white">{project.title}</span>
                 <span className="mt-1 block">{project.summary}</span>
               </Link>
             ))}
-            {projects.length === 0 ? <p className="text-sm text-slate-400">Seed sonrasi one cikan projeler burada gorunecek.</p> : null}
+            {projects.length === 0 ? <p className="text-sm text-slate-400">One cikan projeler burada listelenecek.</p> : null}
           </div>
         </SectionCard>
 
-        <SectionCard title="Recent blog posts" eyebrow="Technical Notes">
+        <SectionCard title="Technical notes" eyebrow="Research & Writing">
           <div className="grid gap-3">
             {posts.map((post) => (
-              <Link key={String(post._id)} href={`/blog/${post.slug}`} className="rounded-2xl border border-white/10 bg-white/[0.035] p-4 text-sm text-slate-300 hover:bg-white/[0.07]">
+              <Link key={String(post._id)} href={`/blog/${post.slug}`} className="rounded-2xl border border-white/10 bg-black/30 p-4 text-sm text-slate-300 transition hover:border-[#8bd3dd]/30 hover:bg-white/[0.07]">
                 <span className="block font-semibold text-white">{post.title}</span>
                 <span className="mt-1 block">{post.excerpt}</span>
               </Link>
             ))}
-            {posts.length === 0 ? <p className="text-sm text-slate-400">Yayinlanmis blog yazisi eklenince burada listelenecek.</p> : null}
+            {posts.length === 0 ? <p className="text-sm text-slate-400">Teknik notlar yayinlandikca burada gorunecek.</p> : null}
           </div>
         </SectionCard>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-8">
-        <div className="glass-panel lab-border rounded-[2.4rem] p-8">
+      <section className="page-section mx-auto max-w-7xl px-4 pb-28 sm:px-6 lg:px-8">
+        <div className="glass-panel lab-border rounded-[2.6rem] p-8 sm:p-12">
           <GitBranch className="size-7 text-[#8bd3dd]" />
-          <h2 className="mt-5 text-3xl font-semibold tracking-tight text-white">Personal website + IoT dashboard + engineering lab platform.</h2>
-          <p className="mt-4 max-w-3xl leading-8 text-slate-300">{siteConfig.hero.longDescription}</p>
-          <a href={siteConfig.links.oldSite} className="mt-6 inline-block rounded-full border border-white/10 bg-white/[0.05] px-5 py-3 text-sm font-semibold text-slate-100 hover:bg-white/10">
-            Legacy Portfolio
-          </a>
+          <h2 className="mt-5 max-w-3xl text-4xl font-semibold tracking-[-0.045em] text-white sm:text-5xl">Built to evolve.</h2>
+          <p className="mt-5 max-w-2xl leading-8 text-slate-300">
+            Bu platform uzun vadede robotik arastirma alani, ESP32 cloud interface, telemetry altyapisi ve teknik yayin merkezi olarak genisleyecek sekilde tasarlandi.
+          </p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link href="/info" className="rounded-full bg-white px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-[#dff8fb]">
+              Yapiyi Kesfet
+            </Link>
+            <a href={siteConfig.links.oldSite} className="rounded-full border border-white/10 bg-black/30 px-5 py-3 text-sm font-semibold text-slate-100 transition hover:bg-white/10">
+              Legacy Portfolio
+            </a>
+          </div>
         </div>
       </section>
     </>
@@ -131,7 +188,7 @@ export default async function HomePage() {
 
 function Metric({ label, value, compact }: { label: string; value: string; compact?: boolean }) {
   return (
-    <div className={compact ? "" : "rounded-2xl border border-white/10 bg-white/[0.035] p-4"}>
+    <div className={compact ? "" : "rounded-2xl border border-white/10 bg-black/30 p-4"}>
       <p className="font-mono-lab text-[10px] uppercase tracking-[0.22em] text-slate-500">{label}</p>
       <p className={compact ? "mt-1 text-base font-semibold text-white" : "mt-2 text-xl font-semibold text-white"}>{value}</p>
     </div>

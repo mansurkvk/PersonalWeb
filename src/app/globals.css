@@ -106,13 +106,34 @@ body::after {
   box-shadow: 0 0 22px rgba(139, 211, 221, 0.8);
 }
 
+.spline-scene {
+  position: absolute;
+  inset: 0;
+  transform-origin: center center;
+  transition: transform 180ms ease-out;
+  will-change: transform;
+}
+
 .spline-frame {
+  width: 100%;
+  height: 100%;
+  transform: none;
+  transform-origin: center center;
+}
+
+.spline-scene-home .spline-frame {
   left: 23%;
   top: -16%;
   width: 112%;
   height: 132%;
-  transform: scale(1.34);
-  transform-origin: center right;
+}
+
+.spline-scene-inner .spline-frame {
+  left: 38%;
+  top: 0%;
+  width: 82%;
+  height: 104%;
+  opacity: 0.88;
 }
 
 /* Koyu premium panel gorunumu icin kontrollu glass efekti. */
@@ -280,12 +301,18 @@ body::after {
 }
 
 @media (max-width: 1024px) {
-  .spline-frame {
+  .spline-scene-home .spline-frame {
     left: 4%;
     top: -8%;
     width: 128%;
     height: 120%;
-    transform: scale(1.16);
+  }
+
+  .spline-scene-inner .spline-frame {
+    left: 8%;
+    top: 4%;
+    width: 118%;
+    height: 104%;
   }
 }
 

@@ -123,24 +123,25 @@ body::after {
 
 .spline-frame {
   position: absolute;
+  left: 50%;
+  top: 50%;
   border: 0;
-  transform: none;
+  transform: translate3d(-50%, -50%, 0);
   transform-origin: center center;
 }
 
 .spline-scene-home .spline-frame {
-  left: 23vw;
-  top: -16vh;
-  width: 112vw;
+  width: 132vw;
   height: 132vh;
+  opacity: 0.58;
+  filter: saturate(0.92) contrast(1.08) brightness(0.78);
 }
 
 .spline-scene-inner .spline-frame {
-  left: 38vw;
-  top: 0;
-  width: 82vw;
-  height: 104vh;
-  opacity: 0.88;
+  width: 142vw;
+  height: 142vh;
+  opacity: 0.42;
+  filter: saturate(0.88) contrast(1.12) brightness(0.72);
 }
 
 /* Koyu premium panel gorunumu icin kontrollu glass efekti. */
@@ -199,8 +200,21 @@ body::after {
 .page-section > *,
 .glass-panel {
   animation: card-rise 780ms cubic-bezier(0.22, 1, 0.36, 1) both;
-  animation-timeline: view();
-  animation-range: entry 0% cover 28%;
+}
+
+@supports (animation-timeline: view()) {
+  .page-section {
+    animation: section-reveal linear both;
+    animation-timeline: view();
+    animation-range: entry -12% cover 34%;
+  }
+
+  .page-section > *,
+  .motion-card {
+    animation: card-rise linear both;
+    animation-timeline: view();
+    animation-range: entry 0% cover 28%;
+  }
 }
 
 .hero-copy,
@@ -295,6 +309,19 @@ body::after {
   }
 }
 
+@keyframes section-reveal {
+  from {
+    opacity: 0.72;
+    transform: translateY(18px);
+    filter: blur(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
 @keyframes card-rise {
   from {
     opacity: 0;
@@ -310,17 +337,15 @@ body::after {
 
 @media (max-width: 1024px) {
   .spline-scene-home .spline-frame {
-    left: 4vw;
-    top: -8vh;
-    width: 128vw;
-    height: 120vh;
+    width: 150vw;
+    height: 128vh;
+    opacity: 0.48;
   }
 
   .spline-scene-inner .spline-frame {
-    left: 8vw;
-    top: 4vh;
-    width: 118vw;
-    height: 104vh;
+    width: 158vw;
+    height: 128vh;
+    opacity: 0.36;
   }
 }
 

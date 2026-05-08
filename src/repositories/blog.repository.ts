@@ -1,3 +1,5 @@
+import { ObjectId } from "mongodb";
+import { blogPostSeeds } from "@/config/content-seeds";
 import { getDb } from "@/lib/db/mongodb";
 import { toObjectId } from "@/lib/db/object-id";
 import type { BlogPostDocument, BlogPostStatus } from "@/types/database";
@@ -9,6 +11,37 @@ export type BlogListFilter = {
   featured?: boolean;
   limit?: number;
 };
+
+const staticAuthorId = new ObjectId("000000000000000000000001");
+
+function staticId(index: number) {
+  return new ObjectId(`100000000000000000000${String(index + 1).padStart(3, "0")}`);
+}
+
+function staticBlogPosts(): BlogPostDocument[] {
+  const now = new Date("2026-01-01T00:00:00.000Z");
+  return blogPostSeeds.map((post, index) => ({
+    ...post,
+    _id: staticId(index),
+    authorId: staticAuthorId,
+    viewCount: 0,
+    createdAt: now,
+    updatedAt: now,
+    publishedAt: post.status === "published" ? now : undefined
+  }));
+}
+
+function applyBlogFilter(posts: BlogPostDocument[], filter: BlogListFilter = {}) {
+  let result = [...posts];
+  if (filter.status) result = result.filter((post) => post.status === filter.status);
+  if (filter.category) result = result.filter((post) => post.category === filter.category);
+  if (filter.tag) result = result.filter((post) => post.tags.includes(filter.tag as string));
+  if (typeof filter.featured === "boolean") result = result.filter((post) => post.featured === filter.featured);
+
+  return result
+    .sort((a, b) => Number(b.featured) - Number(a.featured) || (b.publishedAt?.getTime() ?? b.createdAt.getTime()) - (a.publishedAt?.getTime() ?? a.createdAt.getTime()))
+    .slice(0, filter.limit ?? 100);
+}
 
 export async function blogPostsCollection() {
   const db = await getDb();
@@ -28,28 +61,48 @@ export async function createBlogPost(input: Omit<BlogPostDocument, "_id" | "crea
 }
 
 export async function listBlogPosts(filter: BlogListFilter = {}) {
-  const posts = await blogPostsCollection();
-  const query: Record<string, unknown> = {};
-  if (filter.status) query.status = filter.status;
-  if (filter.category) query.category = filter.category;
-  if (filter.tag) query.tags = filter.tag;
-  if (typeof filter.featured === "boolean") query.featured = filter.featured;
+  try {
+    const posts = await blogPostsCollection();
+    const query: Record<string, unknown> = {};
+    if (filter.status) query.status = filter.status;
+    if (filter.category) query.category = filter.category;
+    if (filter.tag) query.tags = filter.tag;
+    if (typeof filter.featured === "boolean") query.featured = filter.featured;
 
-  return posts
-    .find(query)
-    .sort({ featured: -1, publishedAt: -1, createdAt: -1 })
-    .limit(filter.limit ?? 100)
-    .toArray();
+    const dbPosts = await posts
+      .find(query)
+      .sort({ featured: -1, publishedAt: -1, createdAt: -1 })
+      .limit(filter.limit ?? 100)
+      .toArray();
+
+    return dbPosts.length > 0 ? dbPosts : applyBlogFilter(staticBlogPosts(), filter);
+  } catch {
+    return applyBlogFilter(staticBlogPosts(), filter);
+  }
 }
 
 export async function findBlogPostBySlug(slug: string, includeDrafts = false) {
-  const posts = await blogPostsCollection();
-  return posts.findOne(includeDrafts ? { slug } : { slug, status: "published" });
+  try {
+    const posts = await blogPostsCollection();
+    const post = await posts.findOne(includeDrafts ? { slug } : { slug, status: "published" });
+    if (post) return post;
+  } catch {
+    // MongoDB yoksa GitHub icindeki statik seed icerigine dusulur.
+  }
+
+  return staticBlogPosts().find((post) => post.slug === slug && (includeDrafts || post.status === "published")) ?? null;
 }
 
 export async function findBlogPostById(id: string) {
-  const posts = await blogPostsCollection();
-  return posts.findOne({ _id: toObjectId(id) });
+  try {
+    const posts = await blogPostsCollection();
+    const post = await posts.findOne({ _id: toObjectId(id) });
+    if (post) return post;
+  } catch {
+    // MongoDB yoksa statik icerik aranir.
+  }
+
+  return staticBlogPosts().find((post) => String(post._id) === id) ?? null;
 }
 
 export async function updateBlogPost(id: string, patch: Partial<BlogPostDocument>) {
@@ -72,11 +125,20 @@ export async function deleteBlogPost(id: string) {
 }
 
 export async function incrementBlogPostViews(id: string) {
-  const posts = await blogPostsCollection();
-  await posts.updateOne({ _id: toObjectId(id) }, { $inc: { viewCount: 1 } });
+  try {
+    const posts = await blogPostsCollection();
+    await posts.updateOne({ _id: toObjectId(id) }, { $inc: { viewCount: 1 } });
+  } catch {
+    // Statik GitHub iceriginde view count yazilamaz.
+  }
 }
 
 export async function countBlogPosts() {
-  const posts = await blogPostsCollection();
-  return posts.countDocuments();
+  try {
+    const posts = await blogPostsCollection();
+    const count = await posts.countDocuments();
+    return count || staticBlogPosts().length;
+  } catch {
+    return staticBlogPosts().length;
+  }
 }

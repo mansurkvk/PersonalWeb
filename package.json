@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "seed": "tsx scripts/seed.ts"
+    "seed": "tsx scripts/seed.ts",
+    "sync:notion": "tsx scripts/sync-notion-content.ts"
   },
   "dependencies": {
     "@tailwindcss/typography": "^0.5.15",

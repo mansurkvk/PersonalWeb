@@ -3,6 +3,7 @@ import { IBM_Plex_Mono, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { SiteShell } from "@/components/site-shell";
 import { siteConfig } from "@/config/site";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const displayFont = Space_Grotesk({
   subsets: ["latin"],
@@ -47,6 +48,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="tr" className={`${displayFont.variable} ${monoFont.variable}`}>
       <body>
         <SiteShell>{children}</SiteShell>
+        <SpeedInsights />
       </body>
     </html>
   );

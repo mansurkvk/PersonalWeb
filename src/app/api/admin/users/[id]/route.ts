@@ -15,8 +15,7 @@ export async function GET(_request: Request, context: RouteContext) {
     const user = await findUserById(id);
     if (!user) return jsonError("Kullanici bulunamadi.", 404);
 
-    const safeUser = { ...user };
-    delete safeUser.passwordHash;
+    const safeUser = Object.fromEntries(Object.entries(user).filter(([key]) => key !== "passwordHash"));
     return NextResponse.json({ ok: true, dataSource: process.env.DATA_SOURCE ?? "static", user: safeUser });
   } catch (error) {
     return jsonError(error instanceof Error ? error.message : "Kullanici alinamadi.", 401);

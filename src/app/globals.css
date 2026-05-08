@@ -199,21 +199,15 @@ body::after {
 .motion-card,
 .page-section > *,
 .glass-panel {
-  animation: card-rise 780ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: card-rise 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 @supports (animation-timeline: view()) {
-  .page-section {
-    animation: section-reveal linear both;
-    animation-timeline: view();
-    animation-range: entry -12% cover 34%;
-  }
-
   .page-section > *,
   .motion-card {
     animation: card-rise linear both;
     animation-timeline: view();
-    animation-range: entry 0% cover 28%;
+    animation-range: entry 0% cover 18%;
   }
 }
 
@@ -288,11 +282,9 @@ body::after {
 @keyframes stage-arrive {
   from {
     opacity: 0;
-    filter: blur(10px);
   }
   to {
     opacity: 1;
-    filter: blur(0);
   }
 }
 
@@ -300,38 +292,21 @@ body::after {
   from {
     opacity: 0;
     transform: translateY(22px);
-    filter: blur(10px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
-    filter: blur(0);
-  }
-}
-
-@keyframes section-reveal {
-  from {
-    opacity: 0.72;
-    transform: translateY(18px);
-    filter: blur(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-    filter: blur(0);
   }
 }
 
 @keyframes card-rise {
   from {
-    opacity: 0;
-    transform: translateY(34px) scale(0.975);
-    filter: blur(10px);
+    opacity: 0.2;
+    transform: translateY(26px) scale(0.99);
   }
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
-    filter: blur(0);
   }
 }
 

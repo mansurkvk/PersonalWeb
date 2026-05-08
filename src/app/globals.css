@@ -50,6 +50,19 @@ body::after {
   font-family: var(--font-mono), "IBM Plex Mono", monospace;
 }
 
+.site-content {
+  pointer-events: none;
+}
+
+.site-content a,
+.site-content button,
+.site-content input,
+.site-content textarea,
+.site-content select,
+.site-content [role="button"] {
+  pointer-events: auto;
+}
+
 .hero-copy {
   animation: hero-copy-in 900ms cubic-bezier(0.22, 1, 0.36, 1) both;
   pointer-events: none;
@@ -60,6 +73,15 @@ body::after {
 .hero-interactive-panel,
 .hero-interactive-panel * {
   pointer-events: auto;
+}
+
+.spline-frame {
+  left: 27%;
+  top: -13%;
+  width: 106%;
+  height: 126%;
+  transform: scale(1.24);
+  transform-origin: center right;
 }
 
 /* Koyu premium panel gorunumu icin kontrollu glass efekti. */
@@ -118,13 +140,15 @@ body::after {
   animation: scan-pass 6.2s ease-in-out infinite;
 }
 
-.motion-card {
-  opacity: 0;
-  animation: card-rise 700ms ease forwards;
+.motion-card,
+.page-section > *,
+.glass-panel {
+  animation: card-rise 780ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .page-section {
   position: relative;
+  transform-style: preserve-3d;
 }
 
 .page-section::before {
@@ -136,6 +160,19 @@ body::after {
   width: min(72rem, calc(100% - 2rem));
   transform: translateX(-50%);
   background: linear-gradient(90deg, transparent, rgba(139, 211, 221, 0.22), rgba(213, 180, 106, 0.16), transparent);
+}
+
+.page-section::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto auto 50%;
+  width: min(60rem, 82vw);
+  height: 18rem;
+  transform: translateX(-50%);
+  pointer-events: none;
+  background: radial-gradient(circle at center, rgba(139, 211, 221, 0.08), transparent 62%);
+  filter: blur(18px);
+  opacity: 0.72;
 }
 
 .engineering-surface {
@@ -201,11 +238,23 @@ body::after {
 @keyframes card-rise {
   from {
     opacity: 0;
-    transform: translateY(18px);
+    transform: translateY(28px) scale(0.985);
+    filter: blur(8px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@media (max-width: 1024px) {
+  .spline-frame {
+    left: 10%;
+    top: -8%;
+    width: 120%;
+    height: 118%;
+    transform: scale(1.12);
   }
 }
 

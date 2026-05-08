@@ -2,7 +2,7 @@ import { getDb } from "@/lib/db/mongodb";
 import { getStaticStore, nextStaticObjectId } from "@/server/static-data/static-store";
 import type { TelemetryReadingDocument } from "@/types/database";
 
-function useStaticDataOnly() {
+function isStaticDataOnly() {
   return process.env.DATA_SOURCE !== "mongodb";
 }
 
@@ -12,7 +12,7 @@ export async function telemetryReadingsCollection() {
 }
 
 export async function insertTelemetryReading(input: Omit<TelemetryReadingDocument, "_id" | "createdAt">) {
-  if (useStaticDataOnly()) {
+  if (isStaticDataOnly()) {
     const store = await getStaticStore();
     const reading: TelemetryReadingDocument = { ...input, _id: nextStaticObjectId(7), createdAt: new Date() };
     store.telemetryReadings.unshift(reading);
@@ -25,7 +25,7 @@ export async function insertTelemetryReading(input: Omit<TelemetryReadingDocumen
 }
 
 export async function listLatestReadings(limit = 20, deviceId?: string) {
-  if (useStaticDataOnly()) {
+  if (isStaticDataOnly()) {
     const store = await getStaticStore();
     return store.telemetryReadings
       .filter((reading) => !deviceId || reading.deviceId === deviceId)
@@ -51,7 +51,7 @@ export async function listLatestReadings(limit = 20, deviceId?: string) {
 }
 
 export async function listTelemetryHistory(input: { deviceId?: string; from?: Date; to?: Date; limit?: number }) {
-  if (useStaticDataOnly()) {
+  if (isStaticDataOnly()) {
     const store = await getStaticStore();
     return store.telemetryReadings
       .filter((reading) => !input.deviceId || reading.deviceId === input.deviceId)

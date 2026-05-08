@@ -4,15 +4,15 @@ import { siteConfig } from "@/config/site";
 import { SplineRobotStatusPanel } from "@/components/spline-robot-stage";
 
 const pillars = [
-  { icon: Cpu, title: "Robotics & IoT", text: "ANKEBOT, ESP32 telemetry ve sensor tabanli deneysel sistemler." },
-  { icon: Atom, title: "Physics & Quantum", text: "Fizik odakli arastirma, quantum programming ve QBrick deneyimi." },
-  { icon: Activity, title: "AI Engineering", text: "Makine ogrenmesi, veri akislari ve genisletilebilir platform mimarisi." }
+  { icon: Cpu, title: "Robotics Systems", text: "Hexapod platformlari, servo mimarileri, hareket kontrolu ve gomulu robotik sistemler." },
+  { icon: Activity, title: "Telemetry Infrastructure", text: "ESP32 veri akisi, canli izleme, MongoDB kayitlari ve dashboard odakli IoT altyapisi." },
+  { icon: Atom, title: "Physics-driven Engineering", text: "Fiziksel dusunce, deneysel sistemler ve teorik yaklasimi muhendislikle birlestiren calismalar." }
 ];
 
 const systemStats = [
-  { label: "Platform", value: "PersonalWeb Lab" },
-  { label: "Telemetry", value: "ESP32 Ready" },
-  { label: "Architecture", value: "MongoDB + API" }
+  { label: "Focus", value: "Robotics Systems" },
+  { label: "Infrastructure", value: "Telemetry + IoT" },
+  { label: "Research", value: "Physics-driven" }
 ];
 
 export function Hero() {
@@ -25,23 +25,23 @@ export function Hero() {
             {siteConfig.hero.eyebrow}
           </div>
 
-          <h1 className="max-w-4xl text-balance text-5xl font-semibold leading-[0.95] tracking-[-0.055em] text-white sm:text-6xl lg:text-7xl xl:text-[5.6rem]">
-            Engineering lab for robotics, telemetry and physics.
+          <h1 className="max-w-4xl text-balance text-5xl font-semibold leading-[0.96] tracking-[-0.055em] text-white sm:text-6xl lg:text-7xl xl:text-[5.35rem]">
+            Experimental robotics, telemetry and physics-driven engineering.
           </h1>
 
           <p className="mt-7 max-w-2xl text-pretty text-base leading-8 text-slate-300 sm:text-lg">
-            Mekatronik, robotik, ESP32 tabanli telemetry, yapay zeka ve fizik odakli deneysel sistemleri tek bir modern engineering lab platformunda topluyorum.
+            Robotik sistemler, ESP32 tabanli telemetry altyapilari, yapay zeka uygulamalari ve fizik odakli deneysel muhendislik calismalarimi modern ve olceklenebilir bir dijital laboratuvar yapisinda sunuyorum.
           </p>
 
           <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-            <Link href="/esp" className="group rounded-full bg-white px-6 py-3 font-semibold text-slate-950 shadow-[0_18px_55px_rgba(255,255,255,0.08)] transition hover:-translate-y-0.5 hover:bg-[#dff8fb]">
-              ESP Dashboard <ArrowRight className="ml-2 inline size-4 transition group-hover:translate-x-1" />
+            <Link href="/projects" className="group rounded-full bg-white px-6 py-3 font-semibold text-slate-950 shadow-[0_18px_55px_rgba(255,255,255,0.08)] transition hover:-translate-y-0.5 hover:bg-[#dff8fb]">
+              Projeleri Incele <ArrowRight className="ml-2 inline size-4 transition group-hover:translate-x-1" />
             </Link>
-            <Link href="/projects" className="rounded-full border border-[#8bd3dd]/30 bg-[#8bd3dd]/10 px-6 py-3 font-semibold text-[#c9f8ff] transition hover:-translate-y-0.5 hover:bg-[#8bd3dd]/18">
-              Projeleri Incele
+            <Link href="/esp" className="rounded-full border border-[#8bd3dd]/30 bg-[#8bd3dd]/10 px-6 py-3 font-semibold text-[#c9f8ff] transition hover:-translate-y-0.5 hover:bg-[#8bd3dd]/18">
+              ESP Dashboard
             </Link>
             <Link href="/blog" className="rounded-full border border-white/10 bg-black/30 px-6 py-3 font-semibold text-white backdrop-blur-xl transition hover:-translate-y-0.5 hover:bg-white/10">
-              Blog Yazilari
+              Teknik Yazilar
             </Link>
           </div>
 
@@ -55,12 +55,12 @@ export function Hero() {
           </div>
         </div>
 
-        <div className="mt-12 max-w-3xl">
+        <div className="mt-12 max-w-3xl hero-interactive-panel">
           <SplineRobotStatusPanel />
         </div>
       </div>
 
-      <div className="mx-auto grid max-w-7xl gap-4 px-4 pb-16 sm:px-6 md:grid-cols-3 lg:px-8">
+      <div className="page-section mx-auto grid max-w-7xl gap-4 px-4 pb-16 sm:px-6 md:grid-cols-3 lg:px-8">
         {pillars.map((item, index) => (
           <div key={item.title} className="glass-panel motion-card rounded-[2rem] p-6" style={{ animationDelay: `${index * 110}ms` }}>
             <item.icon className="mb-5 size-6 text-[#8bd3dd]" />

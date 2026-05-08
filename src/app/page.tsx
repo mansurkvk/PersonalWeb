@@ -60,7 +60,7 @@ export default async function HomePage() {
             {isSample ? "Gercek ESP32 verisi gelene kadar bu alan sample data ile sistem hissini korur." : "Bu alan MongoDB uzerindeki son telemetry kaydindan beslenir."}
           </p>
           <Link href="/esp" className="mt-6 inline-flex rounded-full border border-[#8bd3dd]/30 bg-[#8bd3dd]/10 px-5 py-3 text-sm font-semibold text-[#c9f8ff] transition hover:bg-[#8bd3dd]/18 hover:text-white">
-            Dashboard'a Git
+            Dashboarda Git
           </Link>
         </SectionCard>
 

@@ -10,10 +10,25 @@ import { listLatestReadings } from "@/repositories/telemetry.repository";
 export const dynamic = "force-dynamic";
 
 const architectureSteps = [
-  { icon: Radio, title: "Device Layer", text: "ESP32, robot platformlari ve sensorlerden gelen ham veriler guvenli ingest akisi ile sisteme alinir." },
-  { icon: Server, title: "API & Service Layer", text: "Next.js API route, validation, service katmani ve okunabilir is mantigi ile temiz bir backend akisi kurulur." },
-  { icon: Database, title: "Data Layer", text: "MongoDB uzerinde telemetry readings, devices, projects, blog posts ve gelecekteki broker kayitlari tutulur." },
-  { icon: Activity, title: "Interface Layer", text: "Dashboard, lab panelleri ve teknik sayfalar veriyi okunabilir bir muhendislik arayuzune donusturur." }
+  { icon: Radio, title: "Device", text: "ESP32, robot platformlari ve sensor katmani." },
+  { icon: Server, title: "API", text: "Validation, service akisi ve temiz backend mantigi." },
+  { icon: Database, title: "Data", text: "MongoDB uzerinde telemetry, proje ve icerik kayitlari." },
+  { icon: Activity, title: "Interface", text: "Dashboard, lab panelleri ve teknik yayin arayuzleri." }
+];
+
+const focusBlocks = [
+  {
+    title: "Robotics Systems",
+    text: "Hareket eden, algilayan ve veri ureten robotik sistemler. Servo mimarisi, guc dagitimi, gomulu kontrol ve mekanik tasarim tek bir muhendislik butunu olarak ele alinir."
+  },
+  {
+    title: "Telemetry Infrastructure",
+    text: "ESP32 tabanli cihazlardan gelen veriler okunabilir dashboardlara, kayit sistemlerine ve gelecekte broker tabanli gercek zamanli altyapilara donusur."
+  },
+  {
+    title: "Experimental Engineering",
+    text: "Fiziksel sezgi, teorik dusunce ve prototipleme bir arada kullanilir. Amac yalnizca gorsel bir portfolyo degil, gelisen bir teknik laboratuvar kurmaktir."
+  }
 ];
 
 function sampleReading() {
@@ -45,11 +60,32 @@ export default async function HomePage() {
     <>
       <Hero />
 
-      <section className="page-section mx-auto grid max-w-7xl gap-6 px-4 py-20 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8">
-        <SectionCard title="Live telemetry preview" eyebrow={isSample ? "Sample Data" : "Live Data"}>
-          <p className="mb-6 text-sm leading-7 text-slate-400">
-            Gercek zamanli cihaz verileri, telemetry akislari ve sistem durumu bu alanda gorsellestirilir. Amac yalnizca veri gostermek degil; veriyi okunabilir, izlenebilir ve muhendislik odakli bir arayuz icinde sunmaktir.
+      <section className="page-section mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
+        <div className="grid gap-6 lg:grid-cols-[0.78fr_1.22fr] lg:items-end">
+          <div>
+            <p className="font-mono-lab text-xs uppercase tracking-[0.28em] text-[#8bd3dd]">What this is</p>
+            <h2 className="mt-4 max-w-2xl text-4xl font-semibold leading-tight tracking-[-0.045em] text-white sm:text-5xl">
+              Not just a portfolio. A growing engineering platform.
+            </h2>
+          </div>
+          <p className="max-w-2xl text-base leading-8 text-slate-300 lg:justify-self-end">
+            PersonalWeb; robotik projeler, telemetry akislari, deneysel fikirler, teknik notlar ve IoT arayuzlerini ayni teknik kimlik altinda toplayan uzun vadeli bir muhendislik laboratuvaridir.
           </p>
+        </div>
+
+        <div className="mt-12 grid gap-5 lg:grid-cols-3">
+          {focusBlocks.map((item, index) => (
+            <div key={item.title} className="glass-panel motion-card rounded-[2.2rem] p-7" style={{ animationDelay: `${index * 100}ms` }}>
+              <p className="font-mono-lab text-[10px] uppercase tracking-[0.24em] text-slate-500">0{index + 1}</p>
+              <h3 className="mt-8 text-2xl font-semibold tracking-tight text-white">{item.title}</h3>
+              <p className="mt-4 text-sm leading-7 text-slate-400">{item.text}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="page-section mx-auto grid max-w-7xl gap-6 px-4 pb-24 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8">
+        <SectionCard title="Live telemetry" eyebrow={isSample ? "Sample Data" : "Live Data"}>
           <div className="grid gap-4 sm:grid-cols-2">
             <Metric label="Device" value={latest.deviceId} />
             <Metric label="Status" value={latest.deviceStatus ?? "unknown"} />
@@ -57,14 +93,14 @@ export default async function HomePage() {
             <Metric label="Battery" value={`${latest.batteryPercent ?? "N/A"}%`} />
           </div>
           <p className="mt-5 text-sm leading-6 text-slate-400">
-            {isSample ? "Gercek ESP32 verisi gelene kadar bu alan sample data ile sistem hissini korur." : "Bu alan MongoDB uzerindeki son telemetry kaydindan beslenir."}
+            {isSample ? "Gercek cihaz verisi gelene kadar sample telemetry gosterilir." : "Bu alan MongoDB uzerindeki son telemetry kaydindan beslenir."}
           </p>
           <Link href="/esp" className="mt-6 inline-flex rounded-full border border-[#8bd3dd]/30 bg-[#8bd3dd]/10 px-5 py-3 text-sm font-semibold text-[#c9f8ff] transition hover:bg-[#8bd3dd]/18 hover:text-white">
             Dashboarda Git
           </Link>
         </SectionCard>
 
-        <SectionCard title="Engineering control surface" eyebrow="IoT Control">
+        <SectionCard title="Control surface" eyebrow="IoT Control">
           <div className="engineering-surface rounded-[1.6rem] border border-white/10 p-5">
             <div className="flex items-center justify-between">
               <div>
@@ -79,18 +115,17 @@ export default async function HomePage() {
               <Metric label="RSSI" value={`${latest.signalStrength ?? "N/A"}`} compact />
             </div>
           </div>
-          <p className="mt-5 text-sm leading-7 text-slate-400">
-            Bu kontrol yuzeyi ileride broker izleme, cihaz yetkilendirme, alarm durumlari ve robot sistem sagligi gibi panellere genisleyebilecek sekilde dusunuldu.
-          </p>
         </SectionCard>
       </section>
 
-      <section className="page-section mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-8">
-        <div className="mb-8 max-w-3xl">
-          <p className="font-mono-lab text-xs uppercase tracking-[0.28em] text-[#8bd3dd]">System Architecture</p>
-          <h2 className="mt-4 text-3xl font-semibold tracking-tight text-white sm:text-4xl">A personal engineering lab built as a real platform.</h2>
-          <p className="mt-4 leading-8 text-slate-300">
-            Bu site yalnizca bir portfolyo degil; robotik projeler, teknik notlar, telemetry akislari, admin arayuzleri ve gelecekteki IoT broker sistemleri icin genisletilebilir bir muhendislik altyapisidir.
+      <section className="page-section mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
+        <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="font-mono-lab text-xs uppercase tracking-[0.28em] text-[#8bd3dd]">Architecture</p>
+            <h2 className="mt-4 text-3xl font-semibold tracking-tight text-white sm:text-4xl">From device data to engineering interface.</h2>
+          </div>
+          <p className="max-w-xl text-sm leading-7 text-slate-400">
+            Sistem yalnizca gorunum degil; API, veri katmani, dashboard ve gelecekteki broker yapisi icin genisleyebilir bir temel sunar.
           </p>
         </div>
         <div className="grid gap-6 lg:grid-cols-4">
@@ -104,11 +139,8 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="page-section mx-auto grid max-w-7xl gap-6 px-4 pb-20 sm:px-6 lg:grid-cols-2 lg:px-8">
+      <section className="page-section mx-auto grid max-w-7xl gap-6 px-4 pb-24 sm:px-6 lg:grid-cols-2 lg:px-8">
         <SectionCard title="Selected projects" eyebrow="Engineering Work">
-          <p className="mb-5 text-sm leading-7 text-slate-400">
-            Robotik, telemetry, gomulu sistemler ve deneysel muhendislik alanlarinda gelistirdigim calismalar. Her proje yalnizca bir cikti degil; teknik yaklasimimi ve gelistirme felsefemi de yansitir.
-          </p>
           <div className="grid gap-3">
             {(projects.length ? projects : []).map((project) => (
               <Link key={String(project._id)} href={`/projects/${project.slug}`} className="rounded-2xl border border-white/10 bg-black/30 p-4 text-sm text-slate-300 transition hover:border-[#8bd3dd]/30 hover:bg-white/[0.07]">
@@ -116,14 +148,11 @@ export default async function HomePage() {
                 <span className="mt-1 block">{project.summary}</span>
               </Link>
             ))}
-            {projects.length === 0 ? <p className="text-sm text-slate-400">Seed sonrasi one cikan projeler burada gorunecek.</p> : null}
+            {projects.length === 0 ? <p className="text-sm text-slate-400">One cikan projeler burada listelenecek.</p> : null}
           </div>
         </SectionCard>
 
         <SectionCard title="Technical notes" eyebrow="Research & Writing">
-          <p className="mb-5 text-sm leading-7 text-slate-400">
-            Muhendislik surecleri, deneysel fikirler, sistem mimarileri, teknik gozlemler ve ogrenilen dersler bu bolumde duzenli bir teknik arsive donusur.
-          </p>
           <div className="grid gap-3">
             {posts.map((post) => (
               <Link key={String(post._id)} href={`/blog/${post.slug}`} className="rounded-2xl border border-white/10 bg-black/30 p-4 text-sm text-slate-300 transition hover:border-[#8bd3dd]/30 hover:bg-white/[0.07]">
@@ -131,19 +160,19 @@ export default async function HomePage() {
                 <span className="mt-1 block">{post.excerpt}</span>
               </Link>
             ))}
-            {posts.length === 0 ? <p className="text-sm text-slate-400">Yayinlanmis blog yazisi eklenince burada teknik notlar listelenecek.</p> : null}
+            {posts.length === 0 ? <p className="text-sm text-slate-400">Teknik notlar yayinlandikca burada gorunecek.</p> : null}
           </div>
         </SectionCard>
       </section>
 
-      <section className="page-section mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
-        <div className="glass-panel lab-border rounded-[2.4rem] p-8 sm:p-10">
+      <section className="page-section mx-auto max-w-7xl px-4 pb-28 sm:px-6 lg:px-8">
+        <div className="glass-panel lab-border rounded-[2.6rem] p-8 sm:p-12">
           <GitBranch className="size-7 text-[#8bd3dd]" />
-          <h2 className="mt-5 max-w-3xl text-3xl font-semibold tracking-tight text-white sm:text-4xl">A personal engineering lab — built to evolve.</h2>
-          <p className="mt-4 max-w-3xl leading-8 text-slate-300">
-            Bu platform uzun vadede robotik arastirma alani, ESP32 cloud interface, telemetry altyapisi, teknik yayin merkezi ve deneysel muhendislik ekosistemi olarak genisleyecek sekilde tasarlandi.
+          <h2 className="mt-5 max-w-3xl text-4xl font-semibold tracking-[-0.045em] text-white sm:text-5xl">Built to evolve.</h2>
+          <p className="mt-5 max-w-2xl leading-8 text-slate-300">
+            Bu platform uzun vadede robotik arastirma alani, ESP32 cloud interface, telemetry altyapisi ve teknik yayin merkezi olarak genisleyecek sekilde tasarlandi.
           </p>
-          <div className="mt-7 flex flex-wrap gap-3">
+          <div className="mt-8 flex flex-wrap gap-3">
             <Link href="/info" className="rounded-full bg-white px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-[#dff8fb]">
               Yapiyi Kesfet
             </Link>

@@ -3,7 +3,7 @@ import { toObjectId } from "@/lib/db/object-id";
 import { getStaticStore, isRole, nextStaticObjectId, normalizeIdentifier, publicUser } from "@/server/static-data/static-store";
 import type { AuthLogDocument, UserDocument, UserRole } from "@/types/database";
 
-function useStaticDataOnly() {
+function shouldUseStaticDataOnly() {
   return process.env.DATA_SOURCE !== "mongodb";
 }
 
@@ -20,7 +20,7 @@ export async function authLogsCollection() {
 export async function findUserByIdentifier(identifier: string) {
   const normalized = normalizeIdentifier(identifier);
 
-  if (useStaticDataOnly()) {
+  if (shouldUseStaticDataOnly()) {
     const store = await getStaticStore();
     return store.users.find((user) => user.email === normalized || user.username === normalized) ?? null;
   }
@@ -38,7 +38,7 @@ export async function findUserByIdentifier(identifier: string) {
 }
 
 export async function findUserById(id: string) {
-  if (useStaticDataOnly()) {
+  if (shouldUseStaticDataOnly()) {
     const store = await getStaticStore();
     return store.users.find((user) => String(user._id) === id) ?? null;
   }
@@ -66,7 +66,7 @@ export async function createUser(input: {
   const normalizedEmail = normalizeIdentifier(input.email);
   const now = new Date();
 
-  if (useStaticDataOnly()) {
+  if (shouldUseStaticDataOnly()) {
     const store = await getStaticStore();
     const existing = store.users.find((user) => user.email === normalizedEmail || user.username === normalizedUsername);
     if (existing) throw new Error("Bu kullanici zaten mevcut.");
@@ -106,7 +106,7 @@ export async function updateUser(id: string, patch: Partial<Omit<UserDocument, "
   const safePatch = { ...patch, updatedAt: new Date() };
   if (safePatch.role && !isRole(safePatch.role)) delete safePatch.role;
 
-  if (useStaticDataOnly()) {
+  if (shouldUseStaticDataOnly()) {
     const store = await getStaticStore();
     const index = store.users.findIndex((user) => String(user._id) === id);
     if (index === -1) throw new Error("Kullanici bulunamadi.");
@@ -119,7 +119,7 @@ export async function updateUser(id: string, patch: Partial<Omit<UserDocument, "
 }
 
 export async function deleteUser(id: string) {
-  if (useStaticDataOnly()) {
+  if (shouldUseStaticDataOnly()) {
     const store = await getStaticStore();
     const user = store.users.find((item) => String(item._id) === id);
     if (user?.role === "admin") throw new Error("Statik modda admin kullanici silinemez.");
@@ -132,7 +132,7 @@ export async function deleteUser(id: string) {
 }
 
 export async function updateLastLogin(userId: string) {
-  if (useStaticDataOnly()) {
+  if (shouldUseStaticDataOnly()) {
     const store = await getStaticStore();
     const user = store.users.find((item) => String(item._id) === userId);
     if (user) {
@@ -155,7 +155,7 @@ export async function createAuthLog(input: { userId: string; ip?: string; userAg
     expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7)
   };
 
-  if (useStaticDataOnly()) {
+  if (shouldUseStaticDataOnly()) {
     const store = await getStaticStore();
     store.authLogs.unshift({ ...log, _id: nextStaticObjectId(6) });
     return;
@@ -166,7 +166,7 @@ export async function createAuthLog(input: { userId: string; ip?: string; userAg
 }
 
 export async function listUsers(limit = 100) {
-  if (useStaticDataOnly()) {
+  if (shouldUseStaticDataOnly()) {
     const store = await getStaticStore();
     return store.users.map(publicUser).slice(0, limit);
   }
@@ -185,7 +185,7 @@ export async function listUsers(limit = 100) {
 }
 
 export async function countUsers() {
-  if (useStaticDataOnly()) {
+  if (shouldUseStaticDataOnly()) {
     const store = await getStaticStore();
     return store.users.length;
   }

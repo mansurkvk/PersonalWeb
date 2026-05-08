@@ -8,16 +8,16 @@ const telemetryItems = [
 
 export function SplineRobotBackdrop({ sceneUrl = DEFAULT_SCENE_URL }: { sceneUrl?: string }) {
   return (
-    <div className="spline-backdrop fixed inset-0 z-0 overflow-hidden bg-[#05070d]" aria-hidden="true">
+    <div className="spline-backdrop fixed inset-0 z-0 overflow-hidden bg-[#05070d]">
       <iframe
         title="Interactive robot arm background"
         src={sceneUrl}
-        className="absolute inset-0 h-full w-full border-0 opacity-80 [filter:saturate(0.92)_contrast(1.08)]"
+        className="absolute inset-0 h-full w-full border-0 opacity-88 [filter:saturate(0.95)_contrast(1.08)]"
         loading="eager"
         allow="autoplay; fullscreen; xr-spatial-tracking"
       />
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_66%_42%,rgba(139,211,221,0.08),transparent_28%),linear-gradient(90deg,rgba(5,7,13,0.88)_0%,rgba(5,7,13,0.6)_34%,rgba(5,7,13,0.28)_58%,rgba(5,7,13,0.76)_100%)]" />
-      <div className="pointer-events-none absolute inset-0 lab-grid opacity-35" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_66%_42%,rgba(139,211,221,0.06),transparent_28%),linear-gradient(90deg,rgba(5,7,13,0.86)_0%,rgba(5,7,13,0.52)_34%,rgba(5,7,13,0.18)_58%,rgba(5,7,13,0.68)_100%)]" />
+      <div className="pointer-events-none absolute inset-0 lab-grid opacity-30" />
       <div className="pointer-events-none absolute inset-0 robot-scanline" />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-[#05070d] via-[#05070d]/72 to-transparent" />
       <div className="pointer-events-none absolute inset-x-0 top-0 h-44 bg-gradient-to-b from-[#05070d]/95 via-[#05070d]/62 to-transparent" />

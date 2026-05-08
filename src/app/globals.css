@@ -4,7 +4,7 @@
 
 :root {
   color-scheme: dark;
-  --background: #06080f;
+  --background: #05070d;
   --surface: rgba(13, 18, 30, 0.78);
   --line: rgba(255, 255, 255, 0.1);
   --text: #edf7ff;
@@ -24,12 +24,41 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
+  overflow-x: hidden;
   background:
-    radial-gradient(circle at 16% 12%, rgba(139, 211, 221, 0.18), transparent 28%),
-    radial-gradient(circle at 72% 0%, rgba(213, 180, 106, 0.12), transparent 24%),
-    linear-gradient(135deg, #06080f 0%, #0b111d 48%, #05070d 100%);
+    radial-gradient(circle at 12% 10%, rgba(139, 211, 221, 0.2), transparent 28%),
+    radial-gradient(circle at 84% 6%, rgba(213, 180, 106, 0.13), transparent 25%),
+    radial-gradient(circle at 50% 76%, rgba(139, 211, 221, 0.08), transparent 32%),
+    linear-gradient(135deg, #05070d 0%, #0b111d 48%, #05070d 100%);
   color: var(--text);
   font-family: var(--font-display), "Space Grotesk", sans-serif;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.38;
+  background-image:
+    linear-gradient(rgba(139, 211, 221, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(139, 211, 221, 0.045) 1px, transparent 1px);
+  background-size: 96px 96px;
+  mask-image: linear-gradient(to bottom, black, transparent 78%);
+  animation: grid-drift 26s linear infinite;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.055;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.65) 1px, transparent 1px);
+  background-size: 100% 4px;
+  mix-blend-mode: screen;
 }
 
 ::selection {
@@ -43,9 +72,17 @@ body {
 /* Koyu premium panel gorunumu icin kontrollu glass efekti. */
 .glass-panel {
   border: 1px solid var(--line);
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.026));
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.082), rgba(255, 255, 255, 0.028));
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.06);
   backdrop-filter: blur(20px);
+  transition: transform 300ms ease, border-color 300ms ease, background 300ms ease, box-shadow 300ms ease;
+}
+
+.glass-panel:hover {
+  transform: translateY(-4px);
+  border-color: rgba(139, 211, 221, 0.28);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.105), rgba(255, 255, 255, 0.036));
+  box-shadow: 0 32px 100px rgba(0, 0, 0, 0.35), 0 0 60px rgba(139, 211, 221, 0.08);
 }
 
 .lab-border {
@@ -70,4 +107,119 @@ body {
     linear-gradient(rgba(139, 211, 221, 0.07) 1px, transparent 1px),
     linear-gradient(90deg, rgba(139, 211, 221, 0.07) 1px, transparent 1px);
   background-size: 72px 72px;
+  animation: grid-drift 22s linear infinite;
+}
+
+.robot-stage {
+  transform-style: preserve-3d;
+  animation: stage-arrive 900ms ease both;
+}
+
+.robot-stage::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  z-index: 2;
+  pointer-events: none;
+  border-radius: inherit;
+  background: linear-gradient(120deg, rgba(139, 211, 221, 0.22), transparent 32%, rgba(213, 180, 106, 0.16) 78%, transparent);
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  padding: 1px;
+}
+
+.robot-stage-grid {
+  background-image:
+    linear-gradient(rgba(139, 211, 221, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(139, 211, 221, 0.08) 1px, transparent 1px),
+    radial-gradient(circle at center, rgba(139, 211, 221, 0.16), transparent 48%);
+  background-size: 56px 56px, 56px 56px, 100% 100%;
+  animation: grid-drift 16s linear infinite;
+}
+
+.robot-scanline::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -18%;
+  height: 18%;
+  background: linear-gradient(to bottom, transparent, rgba(139, 211, 221, 0.16), transparent);
+  animation: scan-pass 5.8s ease-in-out infinite;
+}
+
+.robot-radar {
+  animation: radar-spin 3.8s linear infinite;
+}
+
+.motion-card {
+  opacity: 0;
+  animation: card-rise 700ms ease forwards;
+}
+
+@keyframes grid-drift {
+  from {
+    background-position: 0 0, 0 0, center;
+  }
+  to {
+    background-position: 96px 96px, 96px 96px, center;
+  }
+}
+
+@keyframes scan-pass {
+  0%, 15% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  28% {
+    opacity: 1;
+  }
+  65% {
+    transform: translateY(760%);
+    opacity: 0.7;
+  }
+  100% {
+    transform: translateY(760%);
+    opacity: 0;
+  }
+}
+
+@keyframes radar-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes stage-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.98);
+    filter: blur(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes card-rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
 }

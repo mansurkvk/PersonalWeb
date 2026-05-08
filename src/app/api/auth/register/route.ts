@@ -5,7 +5,15 @@ import { checkRateLimit } from "@/lib/rate-limit";
 import { registerSchema } from "@/lib/validators";
 import { registerUser } from "@/services/auth.service";
 
+function isPublicRegistrationEnabled() {
+  return process.env.PUBLIC_REGISTRATION_ENABLED === "true";
+}
+
 export async function POST(request: Request) {
+  if (!isPublicRegistrationEnabled()) {
+    return jsonError("Public kayit su anda kapali. Kullanici yonetimi admin tarafindan yapilmalidir.", 403);
+  }
+
   const ip = getClientIp(request);
   const limited = checkRateLimit(`register:${ip}`, 6, 60_000);
   if (!limited.ok) return jsonError("Cok fazla kayit denemesi.", 429);

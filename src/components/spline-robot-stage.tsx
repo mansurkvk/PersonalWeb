@@ -12,15 +12,15 @@ export function SplineRobotBackdrop({ sceneUrl = DEFAULT_SCENE_URL }: { sceneUrl
       <iframe
         title="Interactive robot arm background"
         src={sceneUrl}
-        className="absolute inset-0 h-full w-full border-0 opacity-88 [filter:saturate(0.95)_contrast(1.08)]"
+        className="spline-frame absolute border-0 opacity-95 [filter:saturate(1)_contrast(1.08)]"
         loading="eager"
         allow="autoplay; fullscreen; xr-spatial-tracking"
       />
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_66%_42%,rgba(139,211,221,0.06),transparent_28%),linear-gradient(90deg,rgba(5,7,13,0.86)_0%,rgba(5,7,13,0.52)_34%,rgba(5,7,13,0.18)_58%,rgba(5,7,13,0.68)_100%)]" />
-      <div className="pointer-events-none absolute inset-0 lab-grid opacity-30" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_68%_44%,rgba(139,211,221,0.05),transparent_30%),linear-gradient(90deg,rgba(5,7,13,0.84)_0%,rgba(5,7,13,0.5)_32%,rgba(5,7,13,0.12)_60%,rgba(5,7,13,0.62)_100%)]" />
+      <div className="pointer-events-none absolute inset-0 lab-grid opacity-26" />
       <div className="pointer-events-none absolute inset-0 robot-scanline" />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-[#05070d] via-[#05070d]/72 to-transparent" />
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-44 bg-gradient-to-b from-[#05070d]/95 via-[#05070d]/62 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-44 bg-gradient-to-b from-[#05070d]/95 via-[#05070d]/54 to-transparent" />
     </div>
   );
 }

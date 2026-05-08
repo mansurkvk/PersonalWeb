@@ -1,4 +1,10 @@
-const DEFAULT_SCENE_URL = "https://my.spline.design/robotarm-3gWlK9dpeGsxtCIU6F15tmGE/";
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import { usePathname } from "next/navigation";
+
+const HOME_SCENE_URL = "https://my.spline.design/robotarm-3gWlK9dpeGsxtCIU6F15tmGE/";
+const INNER_PAGE_SCENE_URL = "https://my.spline.design/nexbotrobotcharacterconceptforpersonaluse-JEmMR5OoScIYCgJyODnnOX6H/";
 
 const telemetryItems = [
   { label: "Servo Bus", value: "18 CH" },
@@ -6,16 +12,47 @@ const telemetryItems = [
   { label: "Control", value: "Lab" }
 ];
 
-export function SplineRobotBackdrop({ sceneUrl = DEFAULT_SCENE_URL }: { sceneUrl?: string }) {
+function clamp(value: number, min: number, max: number) {
+  return Math.min(max, Math.max(min, value));
+}
+
+export function SplineRobotBackdrop() {
+  const pathname = usePathname();
+  const isHomePage = pathname === "/";
+  const [wheelRotation, setWheelRotation] = useState(0);
+
+  const sceneUrl = isHomePage ? HOME_SCENE_URL : INNER_PAGE_SCENE_URL;
+  const title = isHomePage ? "Controlled robot arm background" : "Controlled Nexbot robot background";
+
+  useEffect(() => {
+    const onWheel = (event: WheelEvent) => {
+      const normalizedDelta = clamp(event.deltaY, -90, 90);
+      setWheelRotation((previous) => clamp(previous + normalizedDelta * 0.035, -14, 14));
+    };
+
+    window.addEventListener("wheel", onWheel, { passive: true });
+    return () => window.removeEventListener("wheel", onWheel);
+  }, []);
+
+  const sceneTransform = useMemo(() => {
+    const settledRotation = Math.abs(wheelRotation) < 0.01 ? 0 : wheelRotation;
+    return `rotate(${settledRotation}deg) scale(1)`;
+  }, [wheelRotation]);
+
   return (
     <div className="spline-backdrop fixed inset-0 z-0 overflow-hidden bg-[#05070d]">
-      <iframe
-        title="Interactive robot arm background"
-        src={sceneUrl}
-        className="spline-frame absolute border-0 opacity-95 [filter:saturate(1)_contrast(1.08)]"
-        loading="eager"
-        allow="autoplay; fullscreen; xr-spatial-tracking"
-      />
+      <div
+        className={isHomePage ? "spline-scene spline-scene-home" : "spline-scene spline-scene-inner"}
+        style={{ transform: sceneTransform }}
+      >
+        <iframe
+          title={title}
+          src={sceneUrl}
+          className="spline-frame pointer-events-none absolute border-0 opacity-95 [filter:saturate(1)_contrast(1.08)]"
+          loading="eager"
+          allow="autoplay; fullscreen; xr-spatial-tracking"
+        />
+      </div>
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_68%_44%,rgba(139,211,221,0.05),transparent_30%),linear-gradient(90deg,rgba(5,7,13,0.84)_0%,rgba(5,7,13,0.5)_32%,rgba(5,7,13,0.12)_60%,rgba(5,7,13,0.62)_100%)]" />
       <div className="pointer-events-none absolute inset-0 lab-grid opacity-26" />
       <div className="pointer-events-none absolute inset-0 robot-scanline" />

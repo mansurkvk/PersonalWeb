@@ -24,6 +24,47 @@ function shouldUseLocalDb() {
   return process.env.DATA_SOURCE === "local" && !isVercelRuntime();
 }
 
+async function staticFindUserByIdentifier(identifier: string) {
+  const normalized = normalizeIdentifier(identifier);
+  const store = await getStaticStore();
+  return store.users.find((user) => user.email === normalized || user.username === normalized) ?? null;
+}
+
+async function staticFindUserById(id: string) {
+  const store = await getStaticStore();
+  return store.users.find((user) => String(user._id) === id) ?? null;
+}
+
+async function staticCreateUser(input: {
+  username: string;
+  email: string;
+  passwordHash: string;
+  displayName: string;
+  role?: UserRole;
+}) {
+  const normalizedUsername = normalizeIdentifier(input.username);
+  const normalizedEmail = normalizeIdentifier(input.email);
+  const now = new Date();
+  const store = await getStaticStore();
+  const existing = store.users.find((user) => user.email === normalizedEmail || user.username === normalizedUsername);
+  if (existing) throw new Error("Bu kullanici zaten mevcut.");
+
+  const user: UserDocument = {
+    _id: nextStaticObjectId(5),
+    username: normalizedUsername,
+    email: normalizedEmail,
+    passwordHash: input.passwordHash,
+    displayName: input.displayName,
+    role: input.role ?? "user",
+    isActive: true,
+    socialLinks: {},
+    createdAt: now,
+    updatedAt: now
+  };
+  store.users.unshift(user);
+  return String(user._id);
+}
+
 export async function usersCollection() {
   const db = await getDb();
   return db.collection<UserDocument>("users");
@@ -42,12 +83,15 @@ export async function findUserByIdentifier(identifier: string) {
   }
 
   if (!shouldUseMongoDb()) {
-    const store = await getStaticStore();
-    return store.users.find((user) => user.email === normalized || user.username === normalized) ?? null;
+    return staticFindUserByIdentifier(normalized);
   }
 
-  const users = await usersCollection();
-  return users.findOne({ $or: [{ email: normalized }, { username: normalized }] });
+  try {
+    const users = await usersCollection();
+    return users.findOne({ $or: [{ email: normalized }, { username: normalized }] });
+  } catch {
+    return staticFindUserByIdentifier(normalized);
+  }
 }
 
 export async function findUserById(id: string) {
@@ -56,12 +100,15 @@ export async function findUserById(id: string) {
   }
 
   if (!shouldUseMongoDb()) {
-    const store = await getStaticStore();
-    return store.users.find((user) => String(user._id) === id) ?? null;
+    return staticFindUserById(id);
   }
 
-  const users = await usersCollection();
-  return users.findOne({ _id: toObjectId(id) });
+  try {
+    const users = await usersCollection();
+    return users.findOne({ _id: toObjectId(id) });
+  } catch {
+    return staticFindUserById(id);
+  }
 }
 
 export async function createUser(input: {
@@ -88,12 +135,12 @@ export async function createUser(input: {
   }
 
   if (!shouldUseMongoDb()) {
-    const store = await getStaticStore();
-    const existing = store.users.find((user) => user.email === normalizedEmail || user.username === normalizedUsername);
-    if (existing) throw new Error("Bu kullanici zaten mevcut.");
+    return staticCreateUser(input);
+  }
 
-    const user: UserDocument = {
-      _id: nextStaticObjectId(5),
+  try {
+    const users = await usersCollection();
+    const result = await users.insertOne({
       username: normalizedUsername,
       email: normalizedEmail,
       passwordHash: input.passwordHash,
@@ -103,24 +150,11 @@ export async function createUser(input: {
       socialLinks: {},
       createdAt: now,
       updatedAt: now
-    };
-    store.users.unshift(user);
-    return String(user._id);
+    });
+    return result.insertedId.toHexString();
+  } catch {
+    return staticCreateUser(input);
   }
-
-  const users = await usersCollection();
-  const result = await users.insertOne({
-    username: normalizedUsername,
-    email: normalizedEmail,
-    passwordHash: input.passwordHash,
-    displayName: input.displayName,
-    role: input.role ?? "user",
-    isActive: true,
-    socialLinks: {},
-    createdAt: now,
-    updatedAt: now
-  });
-  return result.insertedId.toHexString();
 }
 
 export async function updateUser(id: string, patch: Partial<Omit<UserDocument, "_id" | "createdAt">>) {
@@ -140,8 +174,14 @@ export async function updateUser(id: string, patch: Partial<Omit<UserDocument, "
     return;
   }
 
-  const users = await usersCollection();
-  await users.updateOne({ _id: toObjectId(id) }, { $set: safePatch });
+  try {
+    const users = await usersCollection();
+    await users.updateOne({ _id: toObjectId(id) }, { $set: safePatch });
+  } catch {
+    const store = await getStaticStore();
+    const index = store.users.findIndex((user) => String(user._id) === id);
+    if (index !== -1) store.users[index] = { ...store.users[index], ...safePatch };
+  }
 }
 
 export async function deleteUser(id: string) {
@@ -173,8 +213,17 @@ export async function updateLastLogin(userId: string) {
     return;
   }
 
-  const users = await usersCollection();
-  await users.updateOne({ _id: toObjectId(userId) }, { $set: { lastLoginAt: new Date(), updatedAt: new Date() } });
+  try {
+    const users = await usersCollection();
+    await users.updateOne({ _id: toObjectId(userId) }, { $set: { lastLoginAt: new Date(), updatedAt: new Date() } });
+  } catch {
+    const store = await getStaticStore();
+    const user = store.users.find((item) => String(item._id) === userId);
+    if (user) {
+      user.lastLoginAt = new Date();
+      user.updatedAt = new Date();
+    }
+  }
 }
 
 export async function createAuthLog(input: { userId: string; ip?: string; userAgent?: string }) {
@@ -197,8 +246,13 @@ export async function createAuthLog(input: { userId: string; ip?: string; userAg
     return;
   }
 
-  const authLogs = await authLogsCollection();
-  await authLogs.insertOne(log);
+  try {
+    const authLogs = await authLogsCollection();
+    await authLogs.insertOne(log);
+  } catch {
+    const store = await getStaticStore();
+    store.authLogs.unshift({ ...log, _id: nextStaticObjectId(6) });
+  }
 }
 
 export async function listUsers(limit = 100) {
@@ -211,12 +265,17 @@ export async function listUsers(limit = 100) {
     return store.users.map(publicUser).slice(0, limit);
   }
 
-  const users = await usersCollection();
-  return users
-    .find({}, { projection: { passwordHash: 0 } })
-    .sort({ createdAt: -1 })
-    .limit(limit)
-    .toArray();
+  try {
+    const users = await usersCollection();
+    return users
+      .find({}, { projection: { passwordHash: 0 } })
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .toArray();
+  } catch {
+    const store = await getStaticStore();
+    return store.users.map(publicUser).slice(0, limit);
+  }
 }
 
 export async function countUsers() {
@@ -229,6 +288,11 @@ export async function countUsers() {
     return store.users.length;
   }
 
-  const users = await usersCollection();
-  return users.countDocuments();
+  try {
+    const users = await usersCollection();
+    return users.countDocuments();
+  } catch {
+    const store = await getStaticStore();
+    return store.users.length;
+  }
 }

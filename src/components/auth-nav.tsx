@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { readSession } from "@/lib/auth/session";
+import { LogoutButton } from "@/components/logout-button";
 
 export async function AuthNav() {
   const session = await readSession();
@@ -39,6 +40,7 @@ export async function AuthNav() {
           Admin
         </Link>
       ) : null}
+      <LogoutButton />
     </>
   );
 }

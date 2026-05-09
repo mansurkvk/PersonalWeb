@@ -56,6 +56,7 @@ desktop.ini
 *.sqlite
 *.sqlite3
 *.db
+data/local-db.json
 
 # Temporary files
 tmp/

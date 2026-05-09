@@ -1,9 +1,15 @@
+import { redirect } from "next/navigation";
 import { AdminShell } from "@/features/admin/admin-shell";
+import { readSession } from "@/lib/auth/session";
 import { getAdminStats } from "@/services/admin.service";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {
+  const session = await readSession();
+  if (!session) redirect("/login");
+  if (session.role !== "admin") redirect("/profile");
+
   const stats = await getAdminStats().catch(() => ({
     userCount: 0,
     blogCount: 0,

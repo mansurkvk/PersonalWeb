@@ -6,7 +6,7 @@ import { registerSchema } from "@/lib/validators";
 import { registerUser } from "@/services/auth.service";
 
 function isPublicRegistrationEnabled() {
-  return process.env.PUBLIC_REGISTRATION_ENABLED === "true";
+  return process.env.PUBLIC_REGISTRATION_ENABLED !== "false" || process.env.DATA_SOURCE === "local";
 }
 
 export async function POST(request: Request) {

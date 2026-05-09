@@ -12,12 +12,16 @@ import {
 import { getStaticStore, isRole, nextStaticObjectId, normalizeIdentifier, publicUser } from "@/server/static-data/static-store";
 import type { AuthLogDocument, UserDocument, UserRole } from "@/types/database";
 
+function isVercelRuntime() {
+  return process.env.VERCEL === "1" || Boolean(process.env.VERCEL_ENV);
+}
+
 function shouldUseMongoDb() {
-  return process.env.DATA_SOURCE === "mongodb";
+  return process.env.DATA_SOURCE === "mongodb" || (process.env.DATA_SOURCE === "local" && isVercelRuntime());
 }
 
 function shouldUseLocalDb() {
-  return process.env.DATA_SOURCE === "local";
+  return process.env.DATA_SOURCE === "local" && !isVercelRuntime();
 }
 
 export async function usersCollection() {
@@ -42,15 +46,8 @@ export async function findUserByIdentifier(identifier: string) {
     return store.users.find((user) => user.email === normalized || user.username === normalized) ?? null;
   }
 
-  try {
-    const users = await usersCollection();
-    const user = await users.findOne({ $or: [{ email: normalized }, { username: normalized }] });
-    if (user) return user;
-  } catch {
-    return findLocalUserByIdentifier(normalized);
-  }
-
-  return null;
+  const users = await usersCollection();
+  return users.findOne({ $or: [{ email: normalized }, { username: normalized }] });
 }
 
 export async function findUserById(id: string) {
@@ -63,15 +60,8 @@ export async function findUserById(id: string) {
     return store.users.find((user) => String(user._id) === id) ?? null;
   }
 
-  try {
-    const users = await usersCollection();
-    const user = await users.findOne({ _id: toObjectId(id) });
-    if (user) return user;
-  } catch {
-    return findLocalUserById(id);
-  }
-
-  return null;
+  const users = await usersCollection();
+  return users.findOne({ _id: toObjectId(id) });
 }
 
 export async function createUser(input: {
@@ -221,16 +211,12 @@ export async function listUsers(limit = 100) {
     return store.users.map(publicUser).slice(0, limit);
   }
 
-  try {
-    const users = await usersCollection();
-    return users
-      .find({}, { projection: { passwordHash: 0 } })
-      .sort({ createdAt: -1 })
-      .limit(limit)
-      .toArray();
-  } catch {
-    return listLocalUsers(limit);
-  }
+  const users = await usersCollection();
+  return users
+    .find({}, { projection: { passwordHash: 0 } })
+    .sort({ createdAt: -1 })
+    .limit(limit)
+    .toArray();
 }
 
 export async function countUsers() {
@@ -243,10 +229,6 @@ export async function countUsers() {
     return store.users.length;
   }
 
-  try {
-    const users = await usersCollection();
-    return users.countDocuments();
-  } catch {
-    return countLocalUsers();
-  }
+  const users = await usersCollection();
+  return users.countDocuments();
 }

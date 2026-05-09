@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Cpu, Github, Instagram, Linkedin, Mail, Youtube } from "lucide-react";
 import { siteConfig } from "@/config/site";
+import { AuthNav } from "@/components/auth-nav";
 import { SplineRobotBackdrop } from "@/components/spline-robot-stage";
 
 const navItems = [
@@ -44,12 +45,7 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
           </div>
 
           <div className="flex items-center gap-2">
-            <Link
-              href="/login"
-              className="rounded-full border border-white/10 bg-black/30 px-4 py-2 text-sm text-slate-100 backdrop-blur-xl transition hover:bg-white/10"
-            >
-              Giris
-            </Link>
+            <AuthNav />
           </div>
         </nav>
       </header>

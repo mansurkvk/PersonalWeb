@@ -1,10 +1,23 @@
 import { getDb } from "@/lib/db/mongodb";
 import { toObjectId } from "@/lib/db/object-id";
+import {
+  countLocalUsers,
+  createLocalAuthLog,
+  createLocalUser,
+  findLocalUserById,
+  findLocalUserByIdentifier,
+  listLocalUsers,
+  updateLocalUser
+} from "@/server/local-db/local-store";
 import { getStaticStore, isRole, nextStaticObjectId, normalizeIdentifier, publicUser } from "@/server/static-data/static-store";
 import type { AuthLogDocument, UserDocument, UserRole } from "@/types/database";
 
-function shouldUseStaticDataOnly() {
-  return process.env.DATA_SOURCE !== "mongodb";
+function shouldUseMongoDb() {
+  return process.env.DATA_SOURCE === "mongodb";
+}
+
+function shouldUseLocalDb() {
+  return process.env.DATA_SOURCE === "local";
 }
 
 export async function usersCollection() {
@@ -20,7 +33,11 @@ export async function authLogsCollection() {
 export async function findUserByIdentifier(identifier: string) {
   const normalized = normalizeIdentifier(identifier);
 
-  if (shouldUseStaticDataOnly()) {
+  if (shouldUseLocalDb()) {
+    return findLocalUserByIdentifier(normalized);
+  }
+
+  if (!shouldUseMongoDb()) {
     const store = await getStaticStore();
     return store.users.find((user) => user.email === normalized || user.username === normalized) ?? null;
   }
@@ -30,15 +47,18 @@ export async function findUserByIdentifier(identifier: string) {
     const user = await users.findOne({ $or: [{ email: normalized }, { username: normalized }] });
     if (user) return user;
   } catch {
-    // MongoDB hazir degilse statik store'a dus.
+    return findLocalUserByIdentifier(normalized);
   }
 
-  const store = await getStaticStore();
-  return store.users.find((user) => user.email === normalized || user.username === normalized) ?? null;
+  return null;
 }
 
 export async function findUserById(id: string) {
-  if (shouldUseStaticDataOnly()) {
+  if (shouldUseLocalDb()) {
+    return findLocalUserById(id);
+  }
+
+  if (!shouldUseMongoDb()) {
     const store = await getStaticStore();
     return store.users.find((user) => String(user._id) === id) ?? null;
   }
@@ -48,11 +68,10 @@ export async function findUserById(id: string) {
     const user = await users.findOne({ _id: toObjectId(id) });
     if (user) return user;
   } catch {
-    // MongoDB hazir degilse statik store'a dus.
+    return findLocalUserById(id);
   }
 
-  const store = await getStaticStore();
-  return store.users.find((user) => String(user._id) === id) ?? null;
+  return null;
 }
 
 export async function createUser(input: {
@@ -66,7 +85,19 @@ export async function createUser(input: {
   const normalizedEmail = normalizeIdentifier(input.email);
   const now = new Date();
 
-  if (shouldUseStaticDataOnly()) {
+  if (shouldUseLocalDb()) {
+    return createLocalUser({
+      username: normalizedUsername,
+      email: normalizedEmail,
+      passwordHash: input.passwordHash,
+      displayName: input.displayName,
+      role: input.role ?? "user",
+      isActive: true,
+      socialLinks: {}
+    });
+  }
+
+  if (!shouldUseMongoDb()) {
     const store = await getStaticStore();
     const existing = store.users.find((user) => user.email === normalizedEmail || user.username === normalizedUsername);
     if (existing) throw new Error("Bu kullanici zaten mevcut.");
@@ -106,7 +137,12 @@ export async function updateUser(id: string, patch: Partial<Omit<UserDocument, "
   const safePatch = { ...patch, updatedAt: new Date() };
   if (safePatch.role && !isRole(safePatch.role)) delete safePatch.role;
 
-  if (shouldUseStaticDataOnly()) {
+  if (shouldUseLocalDb()) {
+    await updateLocalUser(id, safePatch);
+    return;
+  }
+
+  if (!shouldUseMongoDb()) {
     const store = await getStaticStore();
     const index = store.users.findIndex((user) => String(user._id) === id);
     if (index === -1) throw new Error("Kullanici bulunamadi.");
@@ -119,20 +155,25 @@ export async function updateUser(id: string, patch: Partial<Omit<UserDocument, "
 }
 
 export async function deleteUser(id: string) {
-  if (shouldUseStaticDataOnly()) {
-    const store = await getStaticStore();
-    const user = store.users.find((item) => String(item._id) === id);
-    if (user?.role === "admin") throw new Error("Statik modda admin kullanici silinemez.");
-    store.users = store.users.filter((item) => String(item._id) !== id);
+  if (shouldUseMongoDb()) {
+    const users = await usersCollection();
+    await users.deleteOne({ _id: toObjectId(id) });
     return;
   }
 
-  const users = await usersCollection();
-  await users.deleteOne({ _id: toObjectId(id) });
+  const store = await getStaticStore();
+  const user = store.users.find((item) => String(item._id) === id);
+  if (user?.role === "admin") throw new Error("Yerel modda admin kullanici silinemez.");
+  store.users = store.users.filter((item) => String(item._id) !== id);
 }
 
 export async function updateLastLogin(userId: string) {
-  if (shouldUseStaticDataOnly()) {
+  if (shouldUseLocalDb()) {
+    await updateLocalUser(userId, { lastLoginAt: new Date() });
+    return;
+  }
+
+  if (!shouldUseMongoDb()) {
     const store = await getStaticStore();
     const user = store.users.find((item) => String(item._id) === userId);
     if (user) {
@@ -147,6 +188,11 @@ export async function updateLastLogin(userId: string) {
 }
 
 export async function createAuthLog(input: { userId: string; ip?: string; userAgent?: string }) {
+  if (shouldUseLocalDb()) {
+    await createLocalAuthLog(input);
+    return;
+  }
+
   const log: AuthLogDocument = {
     userId: toObjectId(input.userId),
     ip: input.ip,
@@ -155,7 +201,7 @@ export async function createAuthLog(input: { userId: string; ip?: string; userAg
     expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7)
   };
 
-  if (shouldUseStaticDataOnly()) {
+  if (!shouldUseMongoDb()) {
     const store = await getStaticStore();
     store.authLogs.unshift({ ...log, _id: nextStaticObjectId(6) });
     return;
@@ -166,7 +212,11 @@ export async function createAuthLog(input: { userId: string; ip?: string; userAg
 }
 
 export async function listUsers(limit = 100) {
-  if (shouldUseStaticDataOnly()) {
+  if (shouldUseLocalDb()) {
+    return listLocalUsers(limit);
+  }
+
+  if (!shouldUseMongoDb()) {
     const store = await getStaticStore();
     return store.users.map(publicUser).slice(0, limit);
   }
@@ -179,13 +229,16 @@ export async function listUsers(limit = 100) {
       .limit(limit)
       .toArray();
   } catch {
-    const store = await getStaticStore();
-    return store.users.map(publicUser).slice(0, limit);
+    return listLocalUsers(limit);
   }
 }
 
 export async function countUsers() {
-  if (shouldUseStaticDataOnly()) {
+  if (shouldUseLocalDb()) {
+    return countLocalUsers();
+  }
+
+  if (!shouldUseMongoDb()) {
     const store = await getStaticStore();
     return store.users.length;
   }
@@ -194,7 +247,6 @@ export async function countUsers() {
     const users = await usersCollection();
     return users.countDocuments();
   } catch {
-    const store = await getStaticStore();
-    return store.users.length;
+    return countLocalUsers();
   }
 }

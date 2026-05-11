@@ -350,34 +350,6 @@ body::after {
   }
 }
 
-body.capture-mode {
-  height: 100vh;
-  overflow: hidden !important;
-  background: #05070d;
-}
-
-body.capture-mode header,
-body.capture-mode footer,
-body.capture-mode .spline-backdrop,
-body.capture-mode > div:not(:has(iframe)) {
-  display: none !important;
-}
-
-body.capture-mode::after {
-  display: none !important;
-}
-
-body.capture-mode .site-content {
-  position: static !important;
-  z-index: auto !important;
-  pointer-events: none;
-}
-
-body.capture-mode .site-content > main {
-  display: block !important;
-  pointer-events: none;
-}
-
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

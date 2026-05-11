@@ -21,7 +21,7 @@ export function LogoutButton() {
       onClick={logout}
       className="rounded-full border border-red-300/20 bg-red-400/10 px-4 py-2 text-sm font-semibold text-red-100 backdrop-blur-xl transition hover:bg-red-400/15 disabled:opacity-60"
     >
-      {loading ? "Cikiliyor..." : "Cikis"}
+      {loading ? "Çıkılıyor..." : "Çıkış"}
     </button>
   );
 }

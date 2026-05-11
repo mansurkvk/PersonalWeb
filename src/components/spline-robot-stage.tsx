@@ -1,5 +1,10 @@
 "use client";
 
+import { usePathname } from "next/navigation";
+
+const HOME_SCENE_URL = "https://my.spline.design/robotarm-3gWlK9dpeGsxtCIU6F15tmGE/";
+const INNER_PAGE_SCENE_URL = "https://my.spline.design/nexbotrobotcharacterconceptforpersonaluse-JEmMR5OoScIYCgJyODnnOX6H/";
+
 const telemetryItems = [
   { label: "Servo Bus", value: "18 CH" },
   { label: "Signal", value: "Live" },
@@ -7,25 +12,23 @@ const telemetryItems = [
 ];
 
 export function SplineRobotBackdrop() {
+  const pathname = usePathname();
+  const isHomePage = pathname === "/";
+  const sceneUrl = isHomePage ? HOME_SCENE_URL : INNER_PAGE_SCENE_URL;
+  const title = isHomePage ? "Robot arm loop background" : "Nexbot robot loop background";
+
   return (
-    <div className="lab-loop-backdrop pointer-events-none fixed inset-0 z-0 h-screen w-screen overflow-hidden bg-[#05070d]">
-      <div className="lab-loop-stage" aria-hidden="true">
-        <div className="lab-machine-core" />
-        <div className="lab-machine-arm lab-machine-arm-a" />
-        <div className="lab-machine-arm lab-machine-arm-b" />
-        <div className="lab-machine-joint lab-machine-joint-a" />
-        <div className="lab-machine-joint lab-machine-joint-b" />
-        <div className="lab-machine-base" />
-        <div className="lab-scribble lab-scribble-a" />
-        <div className="lab-scribble lab-scribble-b" />
-        <div className="lab-scribble lab-scribble-c" />
-        <div className="lab-scribble lab-scribble-d" />
-        <div className="lab-hud-line lab-hud-line-a" />
-        <div className="lab-hud-line lab-hud-line-b" />
-        <div className="lab-hud-label lab-hud-label-a">TELEMETRY LOOP</div>
-        <div className="lab-hud-label lab-hud-label-b">ENGINEERING LAB</div>
+    <div className="spline-backdrop pointer-events-none fixed inset-0 z-0 h-screen w-screen overflow-hidden bg-[#05070d]">
+      <div className={isHomePage ? "spline-scene spline-scene-home" : "spline-scene spline-scene-inner"}>
+        <iframe
+          title={title}
+          src={sceneUrl}
+          className="spline-frame absolute border-0 opacity-95 [filter:saturate(1)_contrast(1.08)]"
+          loading="eager"
+          allow="autoplay; fullscreen; xr-spatial-tracking"
+        />
       </div>
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_68%_44%,rgba(139,211,221,0.06),transparent_30%),linear-gradient(90deg,rgba(5,7,13,0.86)_0%,rgba(5,7,13,0.52)_32%,rgba(5,7,13,0.2)_60%,rgba(5,7,13,0.68)_100%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_68%_44%,rgba(139,211,221,0.05),transparent_30%),linear-gradient(90deg,rgba(5,7,13,0.84)_0%,rgba(5,7,13,0.5)_32%,rgba(5,7,13,0.12)_60%,rgba(5,7,13,0.62)_100%)]" />
       <div className="absolute inset-0 lab-grid opacity-26" />
       <div className="absolute inset-0 robot-scanline" />
       <div className="absolute inset-0 lab-video-noise" />

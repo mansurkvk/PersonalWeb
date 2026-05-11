@@ -20,11 +20,14 @@ export function Hero() {
           </div>
 
           <h1 className="max-w-3xl text-balance text-5xl font-semibold leading-[0.92] tracking-[-0.065em] text-white sm:text-6xl lg:text-7xl xl:text-[6.1rem]">
-            Machines. Telemetry. Experimental engineering.
+            ROBOTICS
+            PHYSICS
+            MATHS
+            ENGINERING
           </h1>
 
           <p className="mt-7 max-w-xl text-pretty text-base leading-8 text-slate-300 sm:text-lg">
-            Mekatronik, robotik ve gercek zamanli IoT sistemlerini; fizik odakli dusunce ve deneysel muhendislik yaklasimiyla tek bir teknik laboratuvar platformunda topluyorum.
+            Mekatronik, robotik ve gerçek zamanlı IoT sistemlerini; fizik odakli düşünce ve deneysel muhendislik yaklaşımıyla tek bir teknik laboratuvar platformunda topluyorum.
           </p>
 
           <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">

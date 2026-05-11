@@ -144,6 +144,26 @@ body::after {
   filter: saturate(0.88) contrast(1.12) brightness(0.72);
 }
 
+.robot-loop-video {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  width: 100vw;
+  height: 100vh;
+  min-width: 100vw;
+  min-height: 100vh;
+  object-fit: cover;
+  transform: translate3d(-50%, -50%, 0) scale(1.02);
+  transform-origin: center center;
+  opacity: 0.58;
+  filter: saturate(0.92) contrast(1.08) brightness(0.78);
+}
+
+.robot-loop-video-inner {
+  opacity: 0.42;
+  filter: saturate(0.88) contrast(1.12) brightness(0.72);
+}
+
 /* Koyu premium panel gorunumu icin kontrollu glass efekti. */
 .glass-panel {
   border: 1px solid var(--line);
@@ -321,6 +341,12 @@ body::after {
     width: 158vw;
     height: 128vh;
     opacity: 0.36;
+  }
+
+  .robot-loop-video-home,
+  .robot-loop-video-inner {
+    opacity: 0.42;
+    transform: translate3d(-50%, -50%, 0) scale(1.08);
   }
 }
 

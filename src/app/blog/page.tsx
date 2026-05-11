@@ -13,8 +13,8 @@ export default async function BlogPage({ searchParams }: { searchParams?: Promis
     <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
       <div className="max-w-3xl">
         <p className="font-mono-lab text-xs uppercase tracking-[0.35em] text-[#8bd3dd]">Blog</p>
-        <h1 className="mt-4 text-4xl font-semibold tracking-tight text-white sm:text-5xl">Teknik notlar, deney gunlukleri ve lab yazilari.</h1>
-        <p className="mt-4 text-slate-300">Robotics, ESP32, AI, physics ve software architecture uzerine genisletilebilir blog sistemi.</p>
+        <h1 className="mt-4 text-4xl font-semibold tracking-tight text-white sm:text-5xl">Düşünce, Deneyim ve Üretim</h1>
+        <p className="mt-4 text-slate-300">Harezmi Robotics ve IoT Sistemlerinin blok sayfasına hoşgeldiniz. Yorum yapmak için lütfen giriş yapınız.</p>
       </div>
 
       <div className="mt-8 flex flex-wrap gap-2">

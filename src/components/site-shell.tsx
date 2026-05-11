@@ -1,7 +1,4 @@
-"use client";
-
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { Cpu, Github, Instagram, Linkedin, Mail, Youtube } from "lucide-react";
 import { siteConfig } from "@/config/site";
 import { AuthNav } from "@/components/auth-nav";
@@ -17,13 +14,6 @@ const navItems = [
 
 // Ortak site kabugu: sabit sahne, navbar, footer ve premium dark katmanlar burada tutulur.
 export function SiteShell({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
-  const isCaptureRoute = pathname.startsWith("/capture");
-
-  if (isCaptureRoute) {
-    return <main className="fixed inset-0 h-screen w-screen overflow-hidden bg-[#05070d]">{children}</main>;
-  }
-
   return (
     <main className="relative min-h-screen overflow-hidden text-slate-100">
       <SplineRobotBackdrop />

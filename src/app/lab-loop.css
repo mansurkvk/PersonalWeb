@@ -1,0 +1,314 @@
+.lab-loop-backdrop {
+  animation: stage-arrive 900ms ease both;
+  contain: layout paint size;
+}
+
+.lab-loop-stage {
+  position: fixed;
+  inset: 0;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  opacity: 0.9;
+  background:
+    radial-gradient(circle at 58% 42%, rgba(139, 211, 221, 0.16), transparent 30%),
+    radial-gradient(circle at 74% 22%, rgba(37, 99, 235, 0.11), transparent 24%),
+    radial-gradient(circle at 38% 64%, rgba(139, 211, 221, 0.08), transparent 28%);
+  animation: lab-loop-breathe 8s ease-in-out infinite;
+}
+
+.lab-loop-stage::before,
+.lab-loop-stage::after {
+  content: "";
+  position: absolute;
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+.lab-loop-stage::before {
+  left: 42%;
+  top: 14%;
+  width: 42rem;
+  height: 42rem;
+  border: 1px solid rgba(139, 211, 221, 0.12);
+  box-shadow: inset 0 0 70px rgba(139, 211, 221, 0.07), 0 0 90px rgba(37, 99, 235, 0.05);
+  animation: lab-orbit 18s linear infinite;
+}
+
+.lab-loop-stage::after {
+  right: 12%;
+  bottom: 12%;
+  width: 30rem;
+  height: 30rem;
+  border: 1px dashed rgba(139, 211, 221, 0.1);
+  animation: lab-orbit 26s linear infinite reverse;
+}
+
+.lab-machine-core,
+.lab-machine-arm,
+.lab-machine-joint,
+.lab-machine-base,
+.lab-scribble,
+.lab-hud-line,
+.lab-hud-label {
+  position: absolute;
+  pointer-events: none;
+}
+
+.lab-machine-core {
+  left: 48%;
+  top: 40%;
+  width: 26rem;
+  height: 26rem;
+  transform: translate(-50%, -50%);
+  border-radius: 45% 55% 46% 54%;
+  background:
+    radial-gradient(circle at 46% 38%, rgba(139, 211, 221, 0.22), transparent 26%),
+    linear-gradient(135deg, rgba(139, 211, 221, 0.12), rgba(255, 255, 255, 0.02));
+  filter: blur(0.2px);
+  opacity: 0.34;
+  box-shadow: 0 0 90px rgba(139, 211, 221, 0.1);
+  animation: lab-core-shift 7.5s ease-in-out infinite;
+}
+
+.lab-machine-arm {
+  height: 5.2rem;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(139, 211, 221, 0.18), rgba(37, 99, 235, 0.06));
+  border: 1px solid rgba(139, 211, 221, 0.14);
+  box-shadow: inset 0 0 24px rgba(139, 211, 221, 0.06), 0 0 80px rgba(37, 99, 235, 0.08);
+  transform-origin: left center;
+}
+
+.lab-machine-arm-a {
+  left: 47%;
+  top: 35%;
+  width: 25rem;
+  transform: rotate(-18deg);
+  animation: lab-arm-a 9s ease-in-out infinite;
+}
+
+.lab-machine-arm-b {
+  left: 61%;
+  top: 29%;
+  width: 18rem;
+  height: 3.6rem;
+  transform: rotate(-6deg);
+  opacity: 0.72;
+  animation: lab-arm-b 9s ease-in-out infinite;
+}
+
+.lab-machine-joint {
+  border-radius: 999px;
+  border: 1px solid rgba(139, 211, 221, 0.22);
+  background: radial-gradient(circle, rgba(139, 211, 221, 0.14), rgba(5, 7, 13, 0.16) 58%, transparent 70%);
+  box-shadow: 0 0 60px rgba(139, 211, 221, 0.1);
+}
+
+.lab-machine-joint-a {
+  left: 51%;
+  top: 39%;
+  width: 9rem;
+  height: 9rem;
+  animation: lab-joint-pulse 4.8s ease-in-out infinite;
+}
+
+.lab-machine-joint-b {
+  left: 73%;
+  top: 24%;
+  width: 6.2rem;
+  height: 6.2rem;
+  opacity: 0.58;
+  animation: lab-joint-pulse 5.8s ease-in-out infinite 700ms;
+}
+
+.lab-machine-base {
+  left: 44%;
+  bottom: 16%;
+  width: 28rem;
+  height: 7rem;
+  border-radius: 3rem 3rem 1rem 1rem;
+  background: linear-gradient(180deg, rgba(139, 211, 221, 0.12), rgba(5, 7, 13, 0.03));
+  border: 1px solid rgba(139, 211, 221, 0.12);
+  transform: skewX(-6deg);
+  opacity: 0.34;
+  animation: lab-base-flicker 6s ease-in-out infinite;
+}
+
+.lab-scribble {
+  height: 2px;
+  width: 18rem;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, rgba(139, 211, 221, 0.88), rgba(37, 99, 235, 0.38), transparent);
+  box-shadow: 0 0 22px rgba(139, 211, 221, 0.35);
+  opacity: 0;
+  transform-origin: left center;
+}
+
+.lab-scribble::before,
+.lab-scribble::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: inherit;
+  transform: translateY(12px) rotate(6deg);
+  opacity: 0.7;
+}
+
+.lab-scribble::after {
+  transform: translateY(-13px) rotate(-5deg);
+  opacity: 0.44;
+}
+
+.lab-scribble-a {
+  left: 58%;
+  top: 24%;
+  transform: rotate(12deg);
+  animation: lab-scribble-draw 5.2s ease-in-out infinite;
+}
+
+.lab-scribble-b {
+  left: 37%;
+  top: 48%;
+  width: 22rem;
+  transform: rotate(-18deg);
+  animation: lab-scribble-draw 6.2s ease-in-out infinite 850ms;
+}
+
+.lab-scribble-c {
+  left: 61%;
+  top: 67%;
+  width: 16rem;
+  transform: rotate(8deg);
+  animation: lab-scribble-draw 5.8s ease-in-out infinite 1500ms;
+}
+
+.lab-scribble-d {
+  left: 22%;
+  top: 33%;
+  width: 19rem;
+  transform: rotate(-6deg);
+  animation: lab-scribble-draw 7s ease-in-out infinite 2200ms;
+}
+
+.lab-hud-line {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(139, 211, 221, 0.32), transparent);
+  opacity: 0.48;
+  animation: lab-hud-pass 7s linear infinite;
+}
+
+.lab-hud-line-a {
+  left: 12%;
+  top: 26%;
+  width: 34rem;
+}
+
+.lab-hud-line-b {
+  right: 10%;
+  bottom: 24%;
+  width: 29rem;
+  animation-delay: 2.1s;
+}
+
+.lab-hud-label {
+  color: rgba(226, 240, 255, 0.18);
+  font-family: var(--font-mono), "IBM Plex Mono", monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  text-shadow: 0 0 24px rgba(139, 211, 221, 0.14);
+  animation: lab-label-fade 7s ease-in-out infinite;
+}
+
+.lab-hud-label-a {
+  right: 15%;
+  top: 28%;
+}
+
+.lab-hud-label-b {
+  left: 18%;
+  bottom: 26%;
+  animation-delay: 1.8s;
+}
+
+.lab-video-noise {
+  opacity: 0.05;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.34) 0 1px, transparent 1px),
+    radial-gradient(circle at 80% 70%, rgba(139, 211, 221, 0.24) 0 1px, transparent 1px);
+  background-size: 13px 17px, 19px 23px;
+  mix-blend-mode: screen;
+  animation: lab-noise 1.4s steps(2) infinite;
+}
+
+@keyframes lab-loop-breathe {
+  0%, 100% { transform: scale(1); filter: saturate(1) contrast(1); }
+  50% { transform: scale(1.018); filter: saturate(1.08) contrast(1.04); }
+}
+
+@keyframes lab-orbit {
+  from { transform: rotate(0deg) scale(1); }
+  to { transform: rotate(360deg) scale(1); }
+}
+
+@keyframes lab-core-shift {
+  0%, 100% { transform: translate(-50%, -50%) rotate(0deg) scale(1); opacity: 0.28; }
+  50% { transform: translate(-48%, -52%) rotate(8deg) scale(1.06); opacity: 0.42; }
+}
+
+@keyframes lab-arm-a {
+  0%, 100% { transform: rotate(-18deg) translateX(0); opacity: 0.42; }
+  50% { transform: rotate(-12deg) translateX(1.2rem); opacity: 0.58; }
+}
+
+@keyframes lab-arm-b {
+  0%, 100% { transform: rotate(-6deg) translateX(0); opacity: 0.36; }
+  50% { transform: rotate(4deg) translateX(-0.8rem); opacity: 0.54; }
+}
+
+@keyframes lab-joint-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.24; }
+  50% { transform: scale(1.08); opacity: 0.44; }
+}
+
+@keyframes lab-base-flicker {
+  0%, 100% { opacity: 0.24; }
+  45% { opacity: 0.42; }
+  48% { opacity: 0.22; }
+  52% { opacity: 0.46; }
+}
+
+@keyframes lab-scribble-draw {
+  0%, 12% { opacity: 0; clip-path: inset(0 100% 0 0); }
+  28% { opacity: 0.78; clip-path: inset(0 0 0 0); }
+  52% { opacity: 0.46; clip-path: inset(0 0 0 0); }
+  78%, 100% { opacity: 0; clip-path: inset(0 0 0 100%); }
+}
+
+@keyframes lab-hud-pass {
+  0% { transform: translateX(-2rem); opacity: 0; }
+  25% { opacity: 0.55; }
+  75% { opacity: 0.22; }
+  100% { transform: translateX(2rem); opacity: 0; }
+}
+
+@keyframes lab-label-fade {
+  0%, 100% { opacity: 0.08; transform: translateY(0); }
+  50% { opacity: 0.24; transform: translateY(-0.4rem); }
+}
+
+@keyframes lab-noise {
+  0% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(-0.6rem, 0.4rem, 0); }
+  100% { transform: translate3d(0.4rem, -0.5rem, 0); }
+}
+
+@media (max-width: 1024px) {
+  .lab-machine-core { left: 58%; width: 22rem; height: 22rem; }
+  .lab-machine-arm-a { left: 50%; width: 18rem; }
+  .lab-machine-arm-b { left: 68%; width: 13rem; }
+  .lab-machine-base { left: 48%; width: 22rem; }
+  .lab-hud-label { display: none; }
+}

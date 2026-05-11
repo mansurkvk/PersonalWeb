@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Mono, Space_Grotesk } from "next/font/google";
 import "./globals.css";
+import "./lab-loop.css";
 import { SiteShell } from "@/components/site-shell";
 import { siteConfig } from "@/config/site";
 

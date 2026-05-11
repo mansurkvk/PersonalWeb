@@ -19,15 +19,15 @@ const architectureSteps = [
 const focusBlocks = [
   {
     title: "Robotics Systems",
-    text: "Hareket eden, algilayan ve veri ureten robotik sistemler. Servo mimarisi, guc dagitimi, gomulu kontrol ve mekanik tasarim tek bir muhendislik butunu olarak ele alinir."
+    text: "Çevresini algılayan, hareket kabiliyeti kazanan ve sürekli veri üreten robotik yapılar. Servo kontrolü, güç yönetimi, gömülü yazılım ve mekanik tasarım bütüncül bir mühendislik yaklaşımıyla geliştirilir."
   },
   {
     title: "Telemetry Infrastructure",
-    text: "ESP32 tabanli cihazlardan gelen veriler okunabilir dashboardlara, kayit sistemlerine ve gelecekte broker tabanli gercek zamanli altyapilara donusur."
+    text: "Saha cihazlarından gelen verileri toplayan, işleyen ve izlenebilir hale getiren altyapı. Sensör akışı, veri aktarımı, kayıt yönetimi ve gerçek zamanlı takip tek bir mühendislik sistemi olarak ele alınır."
   },
   {
     title: "Experimental Engineering",
-    text: "Fiziksel sezgi, teorik dusunce ve prototipleme bir arada kullanilir. Amac yalnizca gorsel bir portfolyo degil, gelisen bir teknik laboratuvar kurmaktir."
+    text: "Fikirleri test düzeneklerine dönüştüren, ölçüm ve gözlemle doğrulayan deneysel mühendislik yaklaşımı. Prototipleme, analiz, veri toplama ve tasarım iyileştirme tek bir geliştirme süreci olarak ele alınır."
   }
 ];
 
@@ -40,7 +40,7 @@ function sampleReading() {
     current: 0.42,
     batteryPercent: 86,
     signalStrength: -57,
-    deviceStatus: "sample-online",
+    deviceStatus: "active",
     motionState: "idle",
     createdAt: new Date(),
     sample: true
@@ -65,11 +65,11 @@ export default async function HomePage() {
           <div>
             <p className="font-mono-lab text-xs uppercase tracking-[0.28em] text-[#8bd3dd]">What this is</p>
             <h2 className="mt-4 max-w-2xl text-4xl font-semibold leading-tight tracking-[-0.045em] text-white sm:text-5xl">
-              Not just a portfolio. A growing engineering platform.
+              An Engineering Platform
             </h2>
           </div>
           <p className="max-w-2xl text-base leading-8 text-slate-300 lg:justify-self-end">
-            PersonalWeb; robotik projeler, telemetry akislari, deneysel fikirler, teknik notlar ve IoT arayuzlerini ayni teknik kimlik altinda toplayan uzun vadeli bir muhendislik laboratuvaridir.
+            Robotik, IoT, fizik ve deneysel mühendislik alanlarında üretim odaklı çalışan çok disiplinli mühendisim. Fikirleri prototipe, veriyi sisteme ve teknik bilgiyi uygulanabilir projelere dönüştürüyorum.
           </p>
         </div>
 
@@ -93,7 +93,7 @@ export default async function HomePage() {
             <Metric label="Battery" value={`${latest.batteryPercent ?? "N/A"}%`} />
           </div>
           <p className="mt-5 text-sm leading-6 text-slate-400">
-            {isSample ? "Gercek cihaz verisi gelene kadar sample telemetry gosterilir." : "Bu alan MongoDB uzerindeki son telemetry kaydindan beslenir."}
+            {isSample ? "MongoDB cihaz verisi yerine yerel veriler gösterilmektedir." : "Bu alan MongoDB üzerindeki son telemetry kaydından veri almaktadır."}
           </p>
           <Link href="/esp" className="mt-6 inline-flex rounded-full border border-[#8bd3dd]/30 bg-[#8bd3dd]/10 px-5 py-3 text-sm font-semibold text-[#c9f8ff] transition hover:bg-[#8bd3dd]/18 hover:text-white">
             Dashboarda Git
@@ -122,10 +122,10 @@ export default async function HomePage() {
         <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="font-mono-lab text-xs uppercase tracking-[0.28em] text-[#8bd3dd]">Architecture</p>
-            <h2 className="mt-4 text-3xl font-semibold tracking-tight text-white sm:text-4xl">From device data to engineering interface.</h2>
+            <h2 className="mt-4 text-3xl font-semibold tracking-tight text-white sm:text-4xl">From Device Data to Engineering Interface Turning Raw Signals Into Engineered Insight</h2>
           </div>
           <p className="max-w-xl text-sm leading-7 text-slate-400">
-            Sistem yalnizca gorunum degil; API, veri katmani, dashboard ve gelecekteki broker yapisi icin genisleyebilir bir temel sunar.
+            API’ler, veri sunucuları, aygıtlar ve kullanıcı arayüzü arasında güvenilir bir köprü kuran altyapı. Ham cihaz verisi, düzenli veri akışına ve anlamlı mühendislik ekranlarına dönüştürülür
           </p>
         </div>
         <div className="grid gap-6 lg:grid-cols-4">
@@ -168,9 +168,9 @@ export default async function HomePage() {
       <section className="page-section mx-auto max-w-7xl px-4 pb-28 sm:px-6 lg:px-8">
         <div className="glass-panel lab-border rounded-[2.6rem] p-8 sm:p-12">
           <GitBranch className="size-7 text-[#8bd3dd]" />
-          <h2 className="mt-5 max-w-3xl text-4xl font-semibold tracking-[-0.045em] text-white sm:text-5xl">Built to evolve.</h2>
+          <h2 className="mt-5 max-w-3xl text-4xl font-semibold tracking-[-0.045em] text-white sm:text-5xl">Built to Evolve</h2>
           <p className="mt-5 max-w-2xl leading-8 text-slate-300">
-            Bu platform uzun vadede robotik arastirma alani, ESP32 cloud interface, telemetry altyapisi ve teknik yayin merkezi olarak genisleyecek sekilde tasarlandi.
+            Bir mühendislik sistemi yalnızca çalışmak için değil, değişen ihtiyaçlara uyum sağlamak, yeni verilerle güçlenmek ve her geliştirme döngüsünde daha akıllı hale gelmek için tasarlanmalıdır. Bugünün prototipi, doğru mimariyle yarının ölçeklenebilir teknolojisine dönüşür.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link href="/info" className="rounded-full bg-white px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-[#dff8fb]">

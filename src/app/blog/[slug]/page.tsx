@@ -1,10 +1,65 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { siteConfig } from "@/config/site";
 import { readSession } from "@/lib/auth/session";
 import { findBlogPostBySlug, incrementBlogPostViews } from "@/repositories/blog.repository";
 import { listCommentsByPost } from "@/repositories/comments.repository";
 import { CommentForm } from "@/components/blog/comment-form";
 
 export const dynamic = "force-dynamic";
+
+function getSiteUrl() {
+  const configuredUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  const vercelProductionUrl = process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL;
+  const vercelDeploymentUrl = process.env.NEXT_PUBLIC_VERCEL_URL;
+  const url = configuredUrl || (vercelProductionUrl ? `https://${vercelProductionUrl}` : undefined) || (vercelDeploymentUrl ? `https://${vercelDeploymentUrl}` : undefined) || "https://harezmirobotics.vercel.app";
+
+  return url.replace(/\/+$/, "");
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const post = await findBlogPostBySlug(slug).catch(() => null);
+  const siteUrl = getSiteUrl();
+
+  if (!post) {
+    return {
+      title: "Blog yazisi bulunamadi",
+      robots: { index: false, follow: false }
+    };
+  }
+
+  const canonicalPath = `/blog/${post.slug}`;
+  const image = post.coverImage || "/images/hero.png";
+
+  return {
+    title: post.title,
+    description: post.excerpt,
+    keywords: [post.title, post.category, ...post.tags, "Mansur Kavak", "mekatronik", "robotik", "ESP32", "IoT"],
+    alternates: {
+      canonical: canonicalPath
+    },
+    openGraph: {
+      title: post.title,
+      description: post.excerpt,
+      url: `${siteUrl}${canonicalPath}`,
+      siteName: siteConfig.title,
+      locale: "tr_TR",
+      type: "article",
+      publishedTime: post.publishedAt?.toISOString(),
+      modifiedTime: post.updatedAt?.toISOString(),
+      authors: [siteConfig.owner.name],
+      tags: post.tags,
+      images: [{ url: image, width: 1200, height: 630, alt: post.title }]
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description: post.excerpt,
+      images: [image]
+    }
+  };
+}
 
 export default async function BlogDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;

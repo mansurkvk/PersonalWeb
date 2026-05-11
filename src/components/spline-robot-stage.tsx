@@ -42,20 +42,20 @@ export function SplineRobotBackdrop() {
   useEffect(() => {
     let isMounted = true;
 
-    hasVideoSource(videoSources.webm).then((hasWebm) => {
-      if (isMounted) setUseVideoLoop(hasWebm);
+    Promise.all([hasVideoSource(videoSources.webm), hasVideoSource(videoSources.mp4)]).then(([hasWebm, hasMp4]) => {
+      if (isMounted) setUseVideoLoop(hasWebm || hasMp4);
     });
 
     return () => {
       isMounted = false;
     };
-  }, [videoSources.webm]);
+  }, [videoSources.webm, videoSources.mp4]);
 
   return (
     <div className="spline-backdrop pointer-events-none fixed inset-0 z-0 h-screen w-screen overflow-hidden bg-[#05070d]">
       {useVideoLoop ? (
         <video
-          key={videoSources.webm}
+          key={videoSources.mp4}
           className={isHomePage ? "robot-loop-video robot-loop-video-home" : "robot-loop-video robot-loop-video-inner"}
           autoPlay
           muted

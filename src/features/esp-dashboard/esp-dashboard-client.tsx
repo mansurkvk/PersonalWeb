@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import type { ReactNode } from "react";
 import {
   Activity,
   AlertTriangle,
@@ -169,7 +170,7 @@ export function EspDashboardClient({ initialReadings, devices }: { initialReadin
 
     async function loadLatest() {
       try {
-        setFetchState((state) => (state === "idle" ? "syncing" : state));
+        setFetchState("syncing");
         const query = selectedDevice ? `?limit=40&deviceId=${encodeURIComponent(selectedDevice)}` : "?limit=40";
         const res = await fetch(`/api/iot/latest${query}`, { cache: "no-store" });
         if (!res.ok) throw new Error("Telemetry fetch failed");
@@ -262,7 +263,7 @@ export function EspDashboardClient({ initialReadings, devices }: { initialReadin
             <div className="flex items-center justify-between">
               <span className="text-xs uppercase tracking-[0.2em] text-slate-500">MongoDB</span>
               <span className={`text-xs font-semibold ${fetchState === "error" ? "text-[#f2a47d]" : "text-[#9bd0b8]"}`}>
-                {fetchState === "error" ? "retrying" : "connected"}
+                {fetchState === "syncing" ? "syncing" : fetchState === "error" ? "retrying" : "connected"}
               </span>
             </div>
             <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/[0.06]">
@@ -303,7 +304,7 @@ export function EspDashboardClient({ initialReadings, devices }: { initialReadin
           <TelemetryFlow live={live} fetchState={fetchState} isSample={isSample} />
 
           <div className="grid gap-5 lg:grid-cols-[1.05fr_0.95fr]">
-            <section className={`glass-panel lab-border rounded-[2.4rem] p-6 ${pulseKey ? "" : ""}`} key={`overview-${pulseKey}`}>
+            <section className="glass-panel lab-border rounded-[2.4rem] p-6" key={`overview-${pulseKey}`}>
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="font-mono-lab text-xs uppercase tracking-[0.25em] text-[#8bd3dd]">Device Overview</p>
@@ -437,7 +438,7 @@ function TelemetryFlow({ live, fetchState, isSample }: { live: boolean; fetchSta
   );
 }
 
-function Metric({ icon: Icon, label, value, progress, custom }: { icon: LucideIcon; label: string; value: string; progress?: number; custom?: React.ReactNode }) {
+function Metric({ icon: Icon, label, value, progress, custom }: { icon: LucideIcon; label: string; value: string; progress?: number; custom?: ReactNode }) {
   const width = typeof progress === "number" ? Math.min(100, Math.max(0, progress)) : undefined;
   return (
     <div className="group rounded-[1.4rem] border border-white/10 bg-white/[0.055] p-4 transition duration-300 hover:-translate-y-1 hover:border-[#8bd3dd]/25 hover:bg-white/[0.075]">

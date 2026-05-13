@@ -9,7 +9,9 @@ const navItems = [
   { href: "/info", label: "Info" },
   { href: "/projects", label: "Projeler" },
   { href: "/blog", label: "Blog" },
-  { href: "/esp", label: "ESP Dashboard" }
+  { href: "/esp", label: "ESP Dashboard" },
+  { href: "/products", label: "Urunler" },
+  { href: "/contact", label: "Iletisim" }
 ];
 
 // Ortak site kabugu: sabit sahne, navbar, footer ve premium dark katmanlar burada tutulur.
@@ -21,8 +23,8 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
       <div className="pointer-events-none fixed inset-0 z-[1] bg-[linear-gradient(180deg,rgba(5,7,13,0.1)_0%,rgba(5,7,13,0.58)_100%)]" />
 
       <header className="sticky top-0 z-50 border-b border-white/10 bg-[#05070d]/62 backdrop-blur-2xl">
-        <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-          <Link href="/" className="group flex items-center gap-3">
+        <nav className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-4 sm:px-6 lg:px-8">
+          <Link href="/" className="group flex shrink-0 items-center gap-3">
             <span className="grid size-11 place-items-center rounded-2xl border border-white/10 bg-white/[0.04] shadow-[0_0_38px_rgba(139,211,221,0.18)]">
               <Cpu className="size-5 text-[#8bd3dd]" />
             </span>
@@ -32,12 +34,12 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
             </span>
           </Link>
 
-          <div className="hidden items-center gap-1 rounded-full border border-white/10 bg-black/30 p-1 shadow-[0_18px_70px_rgba(0,0,0,0.18)] backdrop-blur-2xl lg:flex">
+          <div className="hidden items-center gap-1 rounded-full border border-white/10 bg-black/30 p-1 shadow-[0_18px_70px_rgba(0,0,0,0.18)] backdrop-blur-2xl xl:flex">
             {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className="rounded-full px-4 py-2 text-sm text-slate-300 transition hover:bg-white/10 hover:text-white"
+                className="rounded-full px-3 py-2 text-sm text-slate-300 transition hover:bg-white/10 hover:text-white"
               >
                 {item.label}
               </Link>
@@ -48,6 +50,14 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
             <AuthNav />
           </div>
         </nav>
+
+        <div className="mx-auto flex max-w-7xl gap-2 overflow-x-auto px-4 pb-3 sm:px-6 xl:hidden">
+          {navItems.map((item) => (
+            <Link key={item.href} href={item.href} className="shrink-0 rounded-full border border-white/10 bg-black/30 px-4 py-2 text-sm text-slate-300 transition hover:bg-white/10 hover:text-white">
+              {item.label}
+            </Link>
+          ))}
+        </div>
       </header>
 
       <section className="site-content relative z-10">{children}</section>

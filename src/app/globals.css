@@ -267,6 +267,21 @@ body::after {
   animation: grid-drift 22s linear infinite;
 }
 
+.product-float {
+  animation: product-float 7.5s ease-in-out infinite;
+}
+
+.product-showroom-scan::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 -18%;
+  width: 16%;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(139, 211, 221, 0.1), transparent);
+  transform: skewX(-12deg);
+  animation: product-showroom-scan 7s ease-in-out infinite;
+}
+
 .robot-scanline::before {
   content: "";
   position: absolute;
@@ -378,6 +393,32 @@ body::after {
   }
   to {
     background-position: 96px 96px, 96px 96px, center;
+  }
+}
+
+@keyframes product-float {
+  0%, 100% {
+    transform: translate3d(-1.2%, 0, 0) rotate(-0.7deg);
+  }
+  50% {
+    transform: translate3d(1.2%, -1.4%, 0) rotate(0.7deg);
+  }
+}
+
+@keyframes product-showroom-scan {
+  0%, 16% {
+    transform: translateX(0) skewX(-12deg);
+    opacity: 0;
+  }
+  32% {
+    opacity: 1;
+  }
+  68% {
+    opacity: 0.35;
+  }
+  100% {
+    transform: translateX(820%) skewX(-12deg);
+    opacity: 0;
   }
 }
 

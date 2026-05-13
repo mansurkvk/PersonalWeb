@@ -9,6 +9,7 @@ const adminLinks = [
   { href: "/admin/telemetry", label: "Telemetry" },
   { href: "/admin/broker", label: "Broker" },
   { href: "/admin/comments", label: "Comments" },
+  { href: "/admin/messages", label: "Messages" },
   { href: "/admin/settings", label: "Settings" }
 ];
 

@@ -10,8 +10,8 @@ const navItems = [
   { href: "/projects", label: "Projeler" },
   { href: "/blog", label: "Blog" },
   { href: "/esp", label: "ESP Dashboard" },
-  { href: "/products", label: "Urunler" },
-  { href: "/contact", label: "Iletisim" }
+  { href: "/products", label: "Ürünler" },
+  { href: "/contact", label: "İletişim" }
 ];
 
 // Ortak site kabugu: sabit sahne, navbar, footer ve premium dark katmanlar burada tutulur.

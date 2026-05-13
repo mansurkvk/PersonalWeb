@@ -22,7 +22,7 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
       <div className="pointer-events-none fixed inset-0 z-[1] bg-[radial-gradient(circle_at_18%_26%,rgba(139,211,221,0.12),transparent_30%),radial-gradient(circle_at_86%_18%,rgba(213,180,106,0.1),transparent_24%)]" />
       <div className="pointer-events-none fixed inset-0 z-[1] bg-[linear-gradient(180deg,rgba(5,7,13,0.1)_0%,rgba(5,7,13,0.58)_100%)]" />
 
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#05070d]/62 backdrop-blur-2xl">
+      <header className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-[#05070d]/72 backdrop-blur-2xl">
         <nav className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-4 sm:px-6 lg:px-8">
           <Link href="/" className="group flex shrink-0 items-center gap-3">
             <span className="grid size-11 place-items-center rounded-2xl border border-white/10 bg-white/[0.04] shadow-[0_0_38px_rgba(139,211,221,0.18)]">
@@ -60,7 +60,7 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      <section className="site-content relative z-10">{children}</section>
+      <section className="site-content relative z-10 pt-[8.5rem] xl:pt-[5.75rem]">{children}</section>
 
       <footer className="relative z-10 border-t border-white/10 bg-[#05070d]/55 px-4 py-10 text-sm text-slate-400 backdrop-blur-2xl sm:px-6 lg:px-8">
         <div className="mx-auto flex max-w-7xl flex-col gap-6 md:flex-row md:items-center md:justify-between">

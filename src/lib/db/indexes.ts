@@ -25,6 +25,11 @@ export async function ensureDatabaseIndexes() {
       { key: { userId: 1, createdAt: -1 } },
       { key: { status: 1 } }
     ]),
+    db.collection("contactMessages").createIndexes([
+      { key: { status: 1, createdAt: -1 } },
+      { key: { email: 1, createdAt: -1 } },
+      { key: { productSlug: 1, createdAt: -1 } }
+    ]),
     db.collection("projects").createIndexes([
       { key: { slug: 1 }, unique: true },
       { key: { category: 1, featured: -1 } },

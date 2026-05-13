@@ -34,7 +34,6 @@ export function isContactMessageStatus(value: string): value is ContactMessageSt
 }
 
 export async function submitContactMessage(input: SubmitContactMessageInput) {
-  // TODO: add rate limit by IP/email.
   const name = optionalText(input.name, 120);
   const email = cleanText(input.sessionEmail ?? input.email, 180).toLowerCase();
   const subject = cleanText(input.subject, 180);

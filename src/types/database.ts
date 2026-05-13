@@ -94,6 +94,22 @@ export type ProjectDocument = {
   updatedAt: Date;
 };
 
+export type ContactMessageStatus = "new" | "read" | "replied" | "archived";
+
+export type ContactMessageDocument = {
+  _id?: ObjectId;
+  userId?: ObjectId;
+  name?: string;
+  email: string;
+  subject: string;
+  productSlug?: string;
+  message: string;
+  source: "contact-page" | "product-page";
+  status: ContactMessageStatus;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
 export type TelemetryDeviceDocument = {
   _id?: ObjectId;
   deviceId: string;

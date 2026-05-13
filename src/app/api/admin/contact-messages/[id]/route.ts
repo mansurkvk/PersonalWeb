@@ -5,6 +5,11 @@ import { isContactMessageStatus, markContactMessageStatus } from "@/services/con
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     await requireAdmin();
+  } catch {
+    return NextResponse.json({ ok: false, message: "Admin yetkisi gerekli." }, { status: 403 });
+  }
+
+  try {
     const { id } = await params;
     const body = (await request.json()) as { status?: string };
 
@@ -15,6 +20,6 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     await markContactMessageStatus(id, body.status);
     return NextResponse.json({ ok: true });
   } catch {
-    return NextResponse.json({ ok: false, message: "Admin yetkisi gerekli veya islem basarisiz." }, { status: 403 });
+    return NextResponse.json({ ok: false, message: "Mesaj durumu guncellenemedi." }, { status: 400 });
   }
 }

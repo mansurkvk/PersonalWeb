@@ -18,7 +18,10 @@ function productContactHref(product: ProductShowcaseItem) {
 
 export function ProductShowcaseCarousel({ products }: { products: ProductShowcaseItem[] }) {
   const [activeIndex, setActiveIndex] = useState(0);
-  const activeProduct = products[activeIndex] ?? products[0];
+
+  if (products.length === 0) return null;
+
+  const activeProduct = products[activeIndex] ?? products[0]!;
   const capabilityPreview = useMemo(() => activeProduct.capabilities.slice(0, 4), [activeProduct]);
 
   useEffect(() => {

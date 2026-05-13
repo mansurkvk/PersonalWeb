@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import {
   Activity,
   BatteryCharging,
@@ -17,7 +18,9 @@ import {
   Zap
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import type { EspDevice, EspReading, FetchState } from "@/features/esp-dashboard/esp-dashboard-client";
+import type { EspDevice, EspReading } from "@/features/esp-dashboard/esp-dashboard-client";
+
+type FetchState = "idle" | "syncing" | "online" | "empty" | "error";
 
 type MobileEspDashboardProps = {
   deviceIds: string[];
@@ -240,7 +243,7 @@ function MobileMetric({
   label: string;
   value: string;
   progress?: number;
-  custom?: React.ReactNode;
+  custom?: ReactNode;
   emphasis?: boolean;
 }) {
   const width = typeof progress === "number" ? Math.min(100, Math.max(0, progress)) : undefined;

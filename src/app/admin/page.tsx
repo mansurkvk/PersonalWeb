@@ -15,6 +15,7 @@ export default async function AdminPage() {
     blogCount: 0,
     projectCount: 0,
     commentCount: 0,
+    contactMessageCount: 0,
     deviceCount: 0,
     brokerMessageCount: 0,
     latestTelemetry: null
@@ -25,6 +26,7 @@ export default async function AdminPage() {
     { label: "Blog", value: stats.blogCount },
     { label: "Projects", value: stats.projectCount },
     { label: "Comments", value: stats.commentCount },
+    { label: "Contact Messages", value: stats.contactMessageCount },
     { label: "ESP Devices", value: stats.deviceCount },
     { label: "Broker Messages", value: stats.brokerMessageCount },
     { label: "Last telemetry", value: stats.latestTelemetry?.deviceId ?? "N/A" }

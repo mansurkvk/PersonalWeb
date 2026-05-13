@@ -106,6 +106,68 @@ body::after {
   box-shadow: 0 0 22px rgba(139, 211, 221, 0.8);
 }
 
+.click-pulse {
+  position: absolute;
+  width: 7rem;
+  height: 7rem;
+  transform: translate3d(-50%, -50%, 0);
+  border-radius: 999px;
+  opacity: 0;
+  animation: click-pulse-ring 720ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.click-pulse::before,
+.click-pulse::after {
+  content: "";
+  position: absolute;
+  inset: 22%;
+  border-radius: inherit;
+  border: 1px solid rgba(139, 211, 221, 0.72);
+  box-shadow: 0 0 24px rgba(139, 211, 221, 0.42), inset 0 0 20px rgba(139, 211, 221, 0.12);
+}
+
+.click-pulse::after {
+  inset: 37%;
+  border-color: rgba(213, 180, 106, 0.56);
+  animation: click-pulse-inner 520ms ease-out forwards;
+}
+
+.click-pulse-interactive::before {
+  border-color: rgba(213, 180, 106, 0.78);
+  box-shadow: 0 0 28px rgba(213, 180, 106, 0.34), inset 0 0 18px rgba(213, 180, 106, 0.1);
+}
+
+.click-pulse-core {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0.42rem;
+  height: 0.42rem;
+  transform: translate(-50%, -50%);
+  border-radius: 999px;
+  background: #8bd3dd;
+  box-shadow: 0 0 22px rgba(139, 211, 221, 0.95);
+}
+
+.click-pulse-scan {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  height: 1px;
+  width: 3.8rem;
+  transform-origin: left center;
+  background: linear-gradient(90deg, rgba(139, 211, 221, 0.85), transparent);
+  animation: click-pulse-scan 520ms ease-out forwards;
+}
+
+.click-pulse-scan-a {
+  transform: rotate(18deg);
+}
+
+.click-pulse-scan-b {
+  transform: rotate(198deg);
+}
+
 .spline-backdrop {
   animation: stage-arrive 900ms ease both;
   contain: layout paint size;
@@ -270,6 +332,44 @@ body::after {
     linear-gradient(135deg, rgba(5, 7, 13, 0.7), rgba(8, 14, 24, 0.45)),
     radial-gradient(circle at 24% 0%, rgba(139, 211, 221, 0.1), transparent 28%);
   backdrop-filter: blur(20px);
+}
+
+@keyframes click-pulse-ring {
+  0% {
+    opacity: 0;
+    transform: translate3d(-50%, -50%, 0) scale(0.18) rotate(0deg);
+    filter: blur(1px);
+  }
+  18% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(-50%, -50%, 0) scale(1.24) rotate(18deg);
+    filter: blur(0);
+  }
+}
+
+@keyframes click-pulse-inner {
+  from {
+    transform: scale(0.4);
+    opacity: 0.95;
+  }
+  to {
+    transform: scale(1.75);
+    opacity: 0;
+  }
+}
+
+@keyframes click-pulse-scan {
+  from {
+    opacity: 0.85;
+    width: 0.8rem;
+  }
+  to {
+    opacity: 0;
+    width: 4.6rem;
+  }
 }
 
 @keyframes grid-drift {

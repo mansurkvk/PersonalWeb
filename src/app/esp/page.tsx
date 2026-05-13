@@ -1,7 +1,7 @@
 import { serializeMongoArray } from "@/lib/utils/serialize";
 import { listTelemetryDevices } from "@/repositories/devices.repository";
 import { listLatestReadings } from "@/repositories/telemetry.repository";
-import { EspDashboardClient } from "@/features/esp-dashboard/esp-dashboard-client";
+import { EspDashboardResponsiveClient } from "@/features/esp-dashboard/esp-dashboard-responsive-client";
 import type { EspDevice, EspReading } from "@/features/esp-dashboard/esp-dashboard-client";
 
 export const dynamic = "force-dynamic";
@@ -13,7 +13,7 @@ export default async function EspDashboardPage() {
   ]);
 
   return (
-    <EspDashboardClient
+    <EspDashboardResponsiveClient
       initialReadings={serializeMongoArray(readings) as unknown as EspReading[]}
       devices={serializeMongoArray(devices) as unknown as EspDevice[]}
     />

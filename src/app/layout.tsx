@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { IBM_Plex_Mono, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { SiteShell } from "@/components/site-shell";
+import { ClickPulseEffect } from "@/components/effects/click-pulse-effect";
 import { siteConfig } from "@/config/site";
 
 const displayFont = Space_Grotesk({
@@ -126,6 +127,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="tr" className={`${displayFont.variable} ${monoFont.variable}`}>
       <body>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }} />
+        <ClickPulseEffect />
         <SiteShell>{children}</SiteShell>
       </body>
     </html>

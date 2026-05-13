@@ -9,24 +9,31 @@ const hudItems = [
   "AI ENGINEERING"
 ];
 
+const heroTitleLines = ["ROBOTICS", "PHYSICS", "MATHS", "ENGINEERING"];
+
 export function Hero() {
   return (
     <section className="relative isolate overflow-hidden">
       <div className="mx-auto flex min-h-[calc(100vh-5rem)] max-w-7xl flex-col justify-end px-4 pb-24 pt-24 sm:px-6 lg:px-8 lg:pb-28 lg:pt-32">
-        <div className="hero-copy max-w-3xl">
+        <div className="hero-copy max-w-[42rem]">
           <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/25 px-4 py-2 font-mono-lab text-[11px] uppercase tracking-[0.28em] text-slate-200 shadow-[0_0_40px_rgba(139,211,221,0.08)] backdrop-blur-2xl">
             <FlaskConical className="size-4 text-[#d5b46a]" />
             {siteConfig.hero.eyebrow}
           </div>
 
-          <h1 className="max-w-3xl text-balance text-5xl font-semibold leading-[0.92] tracking-[-0.065em] text-white sm:text-6xl lg:text-7xl xl:text-[6.1rem]">
-            ROBOTICS
-            PHYSICS
-            MATHS
-            ENGINERING
+          <h1 className="grid max-w-[37rem] gap-2 text-5xl font-semibold leading-none tracking-[-0.06em] text-white sm:text-6xl lg:text-7xl xl:text-[5.65rem]">
+            {heroTitleLines.map((line, index) => (
+              <span
+                key={line}
+                className="hero-title-line inline-flex w-fit rounded-[1.15rem] border border-white/[0.06] bg-black/[0.08] px-1.5 py-0.5 backdrop-blur-[2px]"
+                style={{ animationDelay: `${index * 80}ms` }}
+              >
+                {line}
+              </span>
+            ))}
           </h1>
 
-          <p className="mt-7 max-w-xl text-pretty text-base leading-8 text-slate-300 sm:text-lg">
+          <p className="mt-7 max-w-lg text-pretty text-base leading-8 text-slate-300 sm:text-lg">
             Mekatronik, robotik ve gerçek zamanlı IoT sistemlerini; fizik odakli düşünce ve deneysel muhendislik yaklaşımıyla tek bir teknik laboratuvar platformunda topluyorum.
           </p>
 

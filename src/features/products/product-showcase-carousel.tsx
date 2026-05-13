@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import type { ProductShowcaseItem } from "@/config/products";
 
 const accentClasses: Record<ProductShowcaseItem["accent"], string> = {
@@ -18,13 +18,12 @@ function productContactHref(product: ProductShowcaseItem) {
 
 export function ProductShowcaseCarousel({ products }: { products: ProductShowcaseItem[] }) {
   const [activeIndex, setActiveIndex] = useState(0);
-
-  if (products.length === 0) return null;
-
-  const activeProduct = products[activeIndex] ?? products[0]!;
-  const capabilityPreview = useMemo(() => activeProduct.capabilities.slice(0, 4), [activeProduct]);
+  const activeProduct = products[activeIndex] ?? null;
+  const capabilityPreview = activeProduct?.capabilities.slice(0, 4) ?? [];
 
   useEffect(() => {
+    if (products.length === 0) return undefined;
+
     const timer = window.setInterval(() => {
       setActiveIndex((current) => (current + 1) % products.length);
     }, 6500);
@@ -33,8 +32,11 @@ export function ProductShowcaseCarousel({ products }: { products: ProductShowcas
   }, [products.length]);
 
   function move(delta: number) {
+    if (products.length === 0) return;
     setActiveIndex((current) => (current + delta + products.length) % products.length);
   }
+
+  if (!activeProduct) return null;
 
   return (
     <section className="relative overflow-hidden rounded-[2.8rem] bg-[#05070d] p-1 shadow-[0_36px_140px_rgba(0,0,0,0.48)]">

@@ -38,12 +38,20 @@ export async function ensureDatabaseIndexes() {
     db.collection("telemetryDevices").createIndexes([
       { key: { deviceId: 1 }, unique: true },
       { key: { isActive: 1, lastSeenAt: -1 } },
-      { key: { type: 1, locationLabel: 1 } }
+      { key: { type: 1, locationLabel: 1 } },
+      { key: { status: 1, lastSeenAt: -1 } }
     ]),
     db.collection("telemetryReadings").createIndexes([
+      { key: { deviceId: 1, packetType: 1 }, unique: true, partialFilterExpression: { packetType: { $exists: true } } },
+      { key: { deviceId: 1, updatedAt: -1 } },
       { key: { deviceId: 1, createdAt: -1 } },
+      { key: { packetType: 1, updatedAt: -1 } },
       { key: { createdAt: -1 } },
       { key: { source: 1, createdAt: -1 } }
+    ]),
+    db.collection("telemetryPerformance").createIndexes([
+      { key: { deviceId: 1, targetPayloadSize: 1 }, unique: true },
+      { key: { updatedAt: -1 } }
     ]),
     db.collection("emailOutbox").createIndexes([
       { key: { status: 1, createdAt: 1 } },

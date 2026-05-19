@@ -3,9 +3,10 @@ import { createAuditLog } from "@/repositories/audit.repository";
 import {
   createTelemetryDevice,
   findTelemetryDeviceByDeviceId,
+  listTelemetryDevices,
   updateTelemetryDeviceSeen
 } from "@/repositories/devices.repository";
-import { insertTelemetryReading } from "@/repositories/telemetry.repository";
+import { insertTelemetryReading, listLatestReadings } from "@/repositories/telemetry.repository";
 import { publishBrokerEvent } from "@/server/broker/broker.service";
 import type { TelemetryReadingDocument } from "@/types/database";
 
@@ -65,4 +66,28 @@ export async function ingestTelemetry(input: {
     payload: { id, ...input.payload }
   });
   return id;
+}
+
+export async function getLiveTelemetry() {
+  const [devices, readings] = await Promise.all([
+    listTelemetryDevices().catch(() => []),
+    listLatestReadings(80).catch(() => [])
+  ]);
+
+  const performance = readings.filter((reading) => {
+    const candidate = reading as TelemetryReadingDocument & { packetType?: string; topic?: string };
+    return candidate.packetType === "performance" || candidate.topic?.includes("/performance");
+  });
+
+  return {
+    devices,
+    readings,
+    performance,
+    meta: {
+      source: readings.length > 0 ? "mongodb-live" : "sample-fallback",
+      hasLiveData: readings.length > 0,
+      packetsUpdated: readings.length,
+      performanceUpdated: performance.length
+    }
+  };
 }

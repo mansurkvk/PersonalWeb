@@ -6,7 +6,7 @@ import {
   listTelemetryDevices,
   updateTelemetryDeviceSeen
 } from "@/repositories/devices.repository";
-import { insertTelemetryReading, listLivePerformance, listLiveReadings } from "@/repositories/telemetry.repository";
+import { insertTelemetryReading, listLatestReadings } from "@/repositories/telemetry.repository";
 import { publishBrokerEvent } from "@/server/broker/broker.service";
 import type { TelemetryReadingDocument } from "@/types/database";
 
@@ -69,11 +69,15 @@ export async function ingestTelemetry(input: {
 }
 
 export async function getLiveTelemetry() {
-  const [devices, readings, performance] = await Promise.all([
+  const [devices, readings] = await Promise.all([
     listTelemetryDevices().catch(() => []),
-    listLiveReadings().catch(() => []),
-    listLivePerformance().catch(() => [])
+    listLatestReadings(80).catch(() => [])
   ]);
+
+  const performance = readings.filter((reading) => {
+    const candidate = reading as TelemetryReadingDocument & { packetType?: string; topic?: string };
+    return candidate.packetType === "performance" || candidate.topic?.includes("/performance");
+  });
 
   return {
     devices,

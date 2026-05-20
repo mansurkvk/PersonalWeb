@@ -1,21 +1,27 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Activity, AlertTriangle, BatteryCharging, Clock, Cpu, Database, Gauge, Radio, RefreshCw, Route, Server, Signal, ThermometerSun, Wifi, Zap } from "lucide-react";
+import type { ReactNode } from "react";
+import { Activity, AlertTriangle, Clock, Cpu, Database, Gauge, Radio, RefreshCw, Route, Server, Signal, ThermometerSun, Wifi, Zap } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { iotConfig } from "@/config/iot.config";
 
 export type EspReading = {
   id?: string;
   deviceId: string;
-  temperature?: number;
-  humidity?: number;
-  pressure?: number;
-  voltage?: number;
-  current?: number;
-  batteryPercent?: number;
-  signalStrength?: number;
-  distance?: number;
+  packetType?: "status" | "telemetry" | "performance" | string;
+  topic?: string;
+  temperature?: number | null;
+  humidity?: number | null;
+  pressure?: number | null;
+  voltage?: number | null;
+  current?: number | null;
+  currentA?: number | null;
+  currentmA?: number | null;
+  batteryPercent?: number | null;
+  signalStrength?: number | null;
+  wifiRssi?: number | null;
+  distance?: number | null;
   motionState?: string;
   deviceStatus?: string;
   uptime?: number;
@@ -24,6 +30,13 @@ export type EspReading = {
   locationLabel?: string;
   source?: string;
   rawPayload?: Record<string, unknown>;
+  data?: Record<string, unknown>;
+  normalized?: Record<string, unknown>;
+  rawText?: string;
+  payloadSize?: number;
+  brokerReceivedAtMs?: number;
+  cloudReceivedAtMs?: number;
+  updatedAt?: string;
   createdAt?: string;
   isSample?: boolean;
 };
@@ -43,9 +56,12 @@ export type EspDevice = {
 type FetchState = "idle" | "syncing" | "online" | "empty" | "error";
 type MetricItem = { icon: LucideIcon; label: string; value: string; hint?: string; progress?: number };
 
+const TELEMETRY_FIRST = ["telemetry", "status", "performance"];
+
 const sampleReadings: EspReading[] = [
   {
     deviceId: "esp32-node-1",
+    packetType: "telemetry",
     temperature: 31.2,
     humidity: 48.5,
     voltage: 4.92,
@@ -56,7 +72,7 @@ const sampleReadings: EspReading[] = [
     firmwareVersion: "mqtt-bridge",
     locationLabel: "Engineering Lab",
     source: "sample",
-    rawPayload: { source: "sample-data", lm35TempC: 31.2, dhtHumidity: 48.5, inaBusV: 4.92, inaCurrentmA: 420, wifiRssi: -57, freeHeap: 205392, edgeValid: true },
+    rawPayload: { source: "sample-data", packetType: "telemetry", lm35TempC: 31.2, dhtHumidity: 48.5, inaBusV: 4.92, inaCurrentmA: 420, wifiRssi: -57, freeHeap: 205392, edgeValid: true },
     createdAt: new Date().toISOString(),
     isSample: true
   }
@@ -99,8 +115,67 @@ function getSignalQuality(signal?: number) {
   return 1;
 }
 
+function packetData(reading?: EspReading): Record<string, unknown> {
+  const readingRecord = asRecord(reading);
+  const raw = asRecord(reading?.rawPayload);
+
+  return {
+    ...readingRecord,
+    ...raw,
+    ...asRecord(raw.raw),
+    ...asRecord(raw.data),
+    ...asRecord(raw.normalized),
+    ...asRecord(readingRecord.data),
+    ...asRecord(readingRecord.normalized)
+  };
+}
+
+function packetTypeOf(reading?: EspReading) {
+  const data = packetData(reading);
+  const packetType = typeof data.packetType === "string" ? data.packetType : undefined;
+  if (packetType) return packetType;
+
+  const topic = typeof data.topic === "string" ? data.topic : undefined;
+  return topic?.split("/").pop() ?? "unknown";
+}
+
+function packetTimeMs(reading?: EspReading) {
+  if (!reading) return 0;
+  const data = packetData(reading);
+  const updated = typeof data.updatedAt === "string" ? data.updatedAt : reading.updatedAt;
+  const created = typeof data.createdAt === "string" ? data.createdAt : reading.createdAt;
+  const brokerMs = num(data.brokerReceivedAtMs) ?? num(reading.brokerReceivedAtMs);
+  const cloudMs = num(data.cloudReceivedAtMs) ?? num(reading.cloudReceivedAtMs);
+
+  if (typeof cloudMs === "number") return cloudMs;
+  if (typeof brokerMs === "number") return brokerMs;
+  return new Date(updated ?? created ?? 0).getTime();
+}
+
+function readingKey(reading?: EspReading) {
+  if (!reading) return "empty";
+  const data = packetData(reading);
+  return String(reading.id ?? data.id ?? data.seq ?? data.updatedAt ?? data.createdAt ?? packetTimeMs(reading));
+}
+
+function compareByLivePriority(a: EspReading, b: EspReading) {
+  const typeA = packetTypeOf(a);
+  const typeB = packetTypeOf(b);
+  const priorityA = TELEMETRY_FIRST.indexOf(typeA) === -1 ? 99 : TELEMETRY_FIRST.indexOf(typeA);
+  const priorityB = TELEMETRY_FIRST.indexOf(typeB) === -1 ? 99 : TELEMETRY_FIRST.indexOf(typeB);
+
+  if (priorityA !== priorityB) return priorityA - priorityB;
+  return packetTimeMs(b) - packetTimeMs(a);
+}
+
+function bestReadingForDevice(items: EspReading[], deviceId?: string) {
+  const scoped = items.filter((item) => (deviceId ? item.deviceId === deviceId : true));
+  return [...scoped].sort(compareByLivePriority)[0];
+}
+
 function getLastSeenDate(reading?: EspReading, device?: EspDevice) {
-  return reading?.createdAt ?? device?.lastSeenAt;
+  const data = packetData(reading);
+  return (typeof data.updatedAt === "string" ? data.updatedAt : undefined) ?? reading?.updatedAt ?? reading?.createdAt ?? device?.lastSeenAt;
 }
 
 function isDeviceLive(reading?: EspReading, device?: EspDevice, isSample = false) {
@@ -110,18 +185,13 @@ function isDeviceLive(reading?: EspReading, device?: EspDevice, isSample = false
   return Date.now() - new Date(lastSeen).getTime() < Math.max(iotConfig.refreshMs * 3, 45_000);
 }
 
-function packetData(reading?: EspReading) {
-  const raw = asRecord(reading?.rawPayload);
-  return { ...raw, ...asRecord(raw.raw), ...asRecord(raw.data), ...asRecord(raw.normalized), ...reading };
-}
-
 function currentA(data: Record<string, unknown>, reading?: EspReading) {
   const ma = num(data.inaCurrentmA) ?? num(data.currentmA);
-  return num(data.currentA) ?? (typeof ma === "number" ? ma / 1000 : reading?.current);
+  return num(data.currentA) ?? (typeof ma === "number" ? ma / 1000 : reading?.current ?? undefined);
 }
 
 function isMotionNode(deviceId: string, data: Record<string, unknown>) {
-  return deviceId.includes("node-2") || data.nodeType === "motion-node" || "potRaw" in data || "gyroOk" in data;
+  return deviceId.includes("node-2") || data.nodeType === "motion-node" || data.nodeType === "motion-input-node" || "potRaw" in data || "gyroOk" in data;
 }
 
 function buildPrimaryMetrics(reading?: EspReading): MetricItem[] {
@@ -168,11 +238,12 @@ function buildSecondaryCards(reading?: EspReading) {
 }
 
 export function EspDashboardClient({ initialReadings, devices }: { initialReadings: EspReading[]; devices: EspDevice[] }) {
+  const initialBest = bestReadingForDevice(initialReadings, initialReadings[0]?.deviceId) ?? initialReadings[0];
   const [readings, setReadings] = useState<EspReading[]>(initialReadings.length ? initialReadings : sampleReadings);
   const [isSample, setIsSample] = useState(initialReadings.length === 0);
-  const [selectedDevice, setSelectedDevice] = useState(initialReadings[0]?.deviceId ?? devices[0]?.deviceId ?? iotConfig.defaultDeviceId);
+  const [selectedDevice, setSelectedDevice] = useState(initialBest?.deviceId ?? devices[0]?.deviceId ?? iotConfig.defaultDeviceId);
   const [fetchState, setFetchState] = useState<FetchState>(initialReadings.length ? "online" : "empty");
-  const [lastPacketKey, setLastPacketKey] = useState(initialReadings[0]?.id ?? initialReadings[0]?.createdAt ?? sampleReadings[0].createdAt ?? "sample");
+  const [lastPacketKey, setLastPacketKey] = useState(readingKey(initialBest ?? sampleReadings[0]));
   const [pulseKey, setPulseKey] = useState(0);
 
   useEffect(() => {
@@ -190,7 +261,8 @@ export function EspDashboardClient({ initialReadings, devices }: { initialReadin
         if (cancelled) return;
 
         if (nextReadings.length > 0) {
-          const nextPacketKey = nextReadings[0]?.id ?? nextReadings[0]?.createdAt ?? `${Date.now()}`;
+          const best = bestReadingForDevice(nextReadings, selectedDevice) ?? nextReadings[0];
+          const nextPacketKey = readingKey(best);
           setReadings(nextReadings);
           setIsSample(false);
           setFetchState("online");
@@ -220,12 +292,12 @@ export function EspDashboardClient({ initialReadings, devices }: { initialReadin
   );
 
   const filtered = readings.filter((item) => (selectedDevice ? item.deviceId === selectedDevice : true));
-  const latest = filtered[0] ?? readings[0];
+  const latest = bestReadingForDevice(readings, selectedDevice) ?? bestReadingForDevice(filtered) ?? readings[0];
   const latestData = packetData(latest);
   const selectedDeviceMeta = devices.find((device) => device.deviceId === selectedDevice) ?? devices.find((device) => device.deviceId === latest?.deviceId);
-  const chartItems = filtered.slice(0, 16).reverse();
+  const chartItems = filtered.filter((item) => packetTypeOf(item) === "telemetry").slice(0, 16).reverse();
   const live = isDeviceLive(latest, selectedDeviceMeta, isSample);
-  const signal = num(latestData.wifiRssi) ?? latest?.signalStrength;
+  const signal = num(latestData.wifiRssi) ?? latest?.signalStrength ?? undefined;
   const signalBars = getSignalQuality(signal);
   const lastSeen = getLastSeenDate(latest, selectedDeviceMeta);
   const packetCount = filtered.length;
@@ -249,13 +321,13 @@ export function EspDashboardClient({ initialReadings, devices }: { initialReadin
           <div className="mt-5 grid gap-3">
             {deviceIds.map((deviceId) => {
               const device = devices.find((item) => item.deviceId === deviceId);
-              const reading = readings.find((item) => item.deviceId === deviceId);
+              const reading = bestReadingForDevice(readings, deviceId);
               const data = packetData(reading);
               const deviceLive = isDeviceLive(reading, device, Boolean(reading?.isSample));
               return (
                 <button key={deviceId} onClick={() => { setSelectedDevice(deviceId); setPulseKey((key) => key + 1); }} className={`group relative overflow-hidden rounded-[1.35rem] border px-4 py-3 text-left transition duration-300 hover:-translate-y-0.5 ${selectedDevice === deviceId ? "border-[#8bd3dd]/45 bg-[#8bd3dd]/12 shadow-[0_0_34px_rgba(139,211,221,0.12)]" : "border-white/10 bg-white/[0.035] hover:border-[#8bd3dd]/25 hover:bg-white/[0.07]"}`}>
                   <span className="flex items-center justify-between gap-2"><span className="block text-sm font-semibold text-white">{deviceId}</span><StatusDot live={deviceLive} /></span>
-                  <span className="mt-1 block text-xs text-slate-500">{String(data.nodeType ?? device?.type ?? "ESP32")} / {device?.locationLabel ?? reading?.locationLabel ?? "lab"}</span>
+                  <span className="mt-1 block text-xs text-slate-500">{String(data.nodeType ?? device?.type ?? "ESP32")} / {String(packetTypeOf(reading))}</span>
                 </button>
               );
             })}
@@ -271,7 +343,7 @@ export function EspDashboardClient({ initialReadings, devices }: { initialReadin
 
         <main className="space-y-5">
           <section className="glass-panel lab-border relative overflow-hidden rounded-[2.6rem] p-6 sm:p-8">
-            <div className="absolute right-6 top-6 hidden rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 font-mono-lab text-xs uppercase tracking-[0.2em] text-slate-300 sm:block">{isSample ? "sample cockpit" : "live mongodb"}</div>
+            <div className="absolute right-6 top-6 hidden rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 font-mono-lab text-xs uppercase tracking-[0.2em] text-slate-300 sm:block">{isSample ? "sample cockpit" : `${packetTypeOf(latest)} packet`}</div>
             <p className="font-mono-lab text-xs uppercase tracking-[0.35em] text-[#8bd3dd]">ESP32 Telemetry</p>
             <h1 className="mt-4 text-4xl font-semibold tracking-[-0.04em] text-white sm:text-6xl">Real-time engineering cockpit</h1>
             <p className="mt-4 max-w-2xl text-slate-400">Sensor, power, signal, motion ve raw payload verilerini kendi Node-1 / Node-2 paket yapina gore izleyen teknik ESP32 dashboard.</p>
@@ -284,10 +356,10 @@ export function EspDashboardClient({ initialReadings, devices }: { initialReadin
             <section className="glass-panel lab-border rounded-[2.4rem] p-6" key={`overview-${pulseKey}`}>
               <div className="flex items-start justify-between gap-4">
                 <div><p className="font-mono-lab text-xs uppercase tracking-[0.25em] text-[#8bd3dd]">Device Overview</p><h2 className="mt-3 text-3xl font-semibold text-white">{latest?.deviceId ?? "No device"}</h2><p className="mt-2 text-sm text-slate-400">{String(latestData.nodeType ?? latest?.locationLabel ?? selectedDeviceMeta?.locationLabel ?? selectedDeviceMeta?.location ?? "Engineering Lab")}</p></div>
-                <div className="flex flex-col items-end gap-2"><span className={`rounded-full px-3 py-1 text-sm ${live ? "bg-[#9bd0b8]/15 text-[#bff1d6]" : "bg-[#f2a47d]/15 text-[#ffd0bb]"}`}>{live ? "Live" : "Offline"}</span><span className="text-xs text-slate-500">{latest?.deviceStatus ?? "standby"}</span></div>
+                <div className="flex flex-col items-end gap-2"><span className={`rounded-full px-3 py-1 text-sm ${live ? "bg-[#9bd0b8]/15 text-[#bff1d6]" : "bg-[#f2a47d]/15 text-[#ffd0bb]"}`}>{live ? "Live" : "Offline"}</span><span className="text-xs text-slate-500">{String(latestData.status ?? latest?.deviceStatus ?? "standby")}</span></div>
               </div>
               <div className="mt-8 grid gap-3 sm:grid-cols-2">{primaryMetrics.map((metric) => <Metric key={metric.label} {...metric} custom={metric.label.includes("Signal") ? <SignalBars active={signalBars} /> : undefined} />)}</div>
-              <div className="mt-6 grid gap-3 sm:grid-cols-3"><MiniStatus label="WiFi RSSI" value={formatValue(signal, " dBm", 0)} /><MiniStatus label="Free Heap" value={formatValue(latestData.freeHeap, " B", 0)} /><MiniStatus label="Source" value={latest?.source ?? (isSample ? "sample" : "mqtt-bridge")} /></div>
+              <div className="mt-6 grid gap-3 sm:grid-cols-3"><MiniStatus label="WiFi RSSI" value={formatValue(signal, " dBm", 0)} /><MiniStatus label="Free Heap" value={formatValue(latestData.freeHeap, " B", 0)} /><MiniStatus label="Packet" value={packetTypeOf(latest)} /></div>
             </section>
 
             <section className="grid gap-5 sm:grid-cols-2">{secondaryCards.map((card) => <DashboardCard key={card.title} {...card} />)}</section>
@@ -295,13 +367,13 @@ export function EspDashboardClient({ initialReadings, devices }: { initialReadin
 
           <div className="grid gap-5 xl:grid-cols-[1.2fr_0.8fr]">
             <section className="glass-panel lab-border rounded-[2rem] p-6">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div><p className="font-mono-lab text-xs uppercase tracking-[0.25em] text-[#8bd3dd]">Telemetry History</p><h3 className="mt-2 text-2xl font-semibold text-white">Temperature / signal trend</h3></div><span className="w-fit rounded-full bg-white/[0.06] px-3 py-1 text-xs text-slate-300">{chartItems.length} samples</span></div>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div><p className="font-mono-lab text-xs uppercase tracking-[0.25em] text-[#8bd3dd]">Telemetry History</p><h3 className="mt-2 text-2xl font-semibold text-white">Temperature / signal trend</h3></div><span className="w-fit rounded-full bg-white/[0.06] px-3 py-1 text-xs text-slate-300">{chartItems.length} telemetry samples</span></div>
               <div className="mt-8 flex h-56 items-end gap-2 rounded-[1.6rem] border border-white/10 bg-black/20 p-4">{chartItems.map((item, index) => { const data = packetData(item); const value = num(data.lm35TempC) ?? num(data.dhtTempC) ?? item.temperature ?? Math.abs(num(data.wifiRssi) ?? item.signalStrength ?? 0); const height = Math.min(100, Math.max(12, (value / 80) * 100)); return <div key={`${item.id ?? item.createdAt}-${index}`} className="group flex flex-1 flex-col items-center gap-2"><div className="relative w-full overflow-hidden rounded-t-2xl bg-white/[0.05]" style={{ height: `${height}%` }}><div className="absolute inset-0 bg-gradient-to-t from-[#8bd3dd] via-[#9bd0b8] to-[#d5b46a] opacity-85 transition group-hover:opacity-100" /></div><span className="font-mono-lab text-[10px] text-slate-500">{formatValue(value, "", 1)}</span></div>; })}</div>
             </section>
 
             <section className="glass-panel lab-border rounded-[2rem] p-6">
               <div className="flex items-center justify-between gap-3"><div><p className="font-mono-lab text-xs uppercase tracking-[0.25em] text-[#8bd3dd]">Raw Payload</p><h3 className="mt-2 text-2xl font-semibold text-white">Packet inspector</h3></div>{fetchState === "error" ? <AlertTriangle className="size-5 text-[#f2a47d]" /> : <Database className="size-5 text-[#d5b46a]" />}</div>
-              <pre className="mt-5 max-h-72 overflow-auto rounded-[1.4rem] border border-white/10 bg-black/40 p-4 text-xs leading-5 text-slate-300">{JSON.stringify(latest?.rawPayload ?? latest ?? {}, null, 2)}</pre>
+              <pre className="mt-5 max-h-72 overflow-auto rounded-[1.4rem] border border-white/10 bg-black/40 p-4 text-xs leading-5 text-slate-300">{JSON.stringify(packetData(latest), null, 2)}</pre>
             </section>
           </div>
         </main>
@@ -323,7 +395,7 @@ function TelemetryFlow({ live, fetchState, isSample }: { live: boolean; fetchSta
   return <section className="glass-panel rounded-[2rem] p-4"><div className="grid gap-3 md:grid-cols-4">{steps.map((step) => { const Icon = step.icon; return <div key={step.label} className="relative rounded-[1.4rem] border border-white/10 bg-black/20 p-4"><div className="flex items-center justify-between gap-3"><Icon className={`size-5 ${step.active ? "text-[#8bd3dd]" : "text-slate-600"}`} /><StatusDot live={step.active} /></div><p className="mt-4 font-mono-lab text-xs uppercase tracking-[0.2em] text-slate-400">{step.label}</p></div>; })}</div></section>;
 }
 
-function Metric({ icon: Icon, label, value, hint, progress, custom }: MetricItem & { custom?: React.ReactNode }) {
+function Metric({ icon: Icon, label, value, hint, progress, custom }: MetricItem & { custom?: ReactNode }) {
   const width = typeof progress === "number" ? Math.min(100, Math.max(0, progress)) : undefined;
   return <div className="group rounded-[1.4rem] border border-white/10 bg-white/[0.055] p-4 transition duration-300 hover:-translate-y-1 hover:border-[#8bd3dd]/25 hover:bg-white/[0.075]"><div className="flex items-center justify-between gap-3"><Icon className="size-5 text-[#8bd3dd]" />{custom}</div><p className="mt-4 text-xs uppercase tracking-[0.2em] text-slate-500">{label}</p><p className="mt-1 text-xl font-semibold text-white">{value}</p>{hint ? <p className="mt-2 text-xs text-slate-500">{hint}</p> : null}{typeof width === "number" ? <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-white/[0.07]"><div className="h-full rounded-full bg-gradient-to-r from-[#8bd3dd] to-[#d5b46a] transition-all duration-700" style={{ width: `${width}%` }} /></div> : null}</div>;
 }

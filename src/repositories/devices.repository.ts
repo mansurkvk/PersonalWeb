@@ -12,6 +12,7 @@ export async function createTelemetryDevice(input: Omit<TelemetryDeviceDocument,
   const devices = await telemetryDevicesCollection();
   const result = await devices.insertOne({
     ...input,
+    isActive: input.isActive ?? true,
     createdAt: now,
     updatedAt: now
   });
@@ -20,7 +21,7 @@ export async function createTelemetryDevice(input: Omit<TelemetryDeviceDocument,
 
 export async function listTelemetryDevices() {
   const devices = await telemetryDevicesCollection();
-  return devices.find().sort({ isActive: -1, lastSeenAt: -1, createdAt: -1 }).toArray();
+  return devices.find().sort({ lastSeenAt: -1, updatedAt: -1, createdAt: -1 }).toArray();
 }
 
 export async function findTelemetryDeviceByDeviceId(deviceId: string) {

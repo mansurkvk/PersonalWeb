@@ -118,11 +118,16 @@ export type TelemetryDeviceDocument = {
   deviceKeyHash?: string;
   apiKeyHash?: string;
   type: string;
+  status?: string;
   location?: string;
   locationLabel?: string;
   firmwareVersion?: string;
-  isActive: boolean;
+  isActive?: boolean;
   lastSeenAt?: Date;
+  lastTopic?: string;
+  lastPayloadSize?: number;
+  lastReading?: Record<string, unknown>;
+  source?: string;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -130,13 +135,27 @@ export type TelemetryDeviceDocument = {
 export type TelemetryReadingDocument = {
   _id?: ObjectId;
   deviceId: string;
+  packetType?: "status" | "telemetry" | "performance" | string;
+  topic?: string;
+  qos?: number;
+  source?: string;
+  transport?: string;
+  payloadSize?: number;
+  brokerReceivedAtMs?: number;
+  cloudReceivedAtMs?: number;
+  rawText?: string;
+  parseOk?: boolean;
+
   temperature?: number;
   humidity?: number;
   pressure?: number;
   voltage?: number;
   current?: number;
+  currentA?: number;
+  currentmA?: number;
   batteryPercent?: number;
   signalStrength?: number;
+  wifiRssi?: number;
   distance?: number;
   motionState?: string;
   deviceStatus?: string;
@@ -144,9 +163,12 @@ export type TelemetryReadingDocument = {
   errorCode?: string;
   firmwareVersion?: string;
   locationLabel?: string;
-  source?: string;
-  rawPayload: Record<string, unknown>;
-  createdAt: Date;
+
+  data?: Record<string, unknown>;
+  normalized?: Record<string, unknown>;
+  rawPayload?: Record<string, unknown>;
+  createdAt?: Date;
+  updatedAt?: Date;
 };
 
 export type BrokerMessageStatus = "queued" | "processed" | "failed";

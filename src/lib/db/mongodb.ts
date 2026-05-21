@@ -19,7 +19,7 @@ function getMongoUri() {
 }
 
 function getDatabaseName() {
-  return process.env.MONGODB_DB_NAME ?? "mansur_platform";
+  return process.env.MONGODB_DB_NAME ?? process.env.MONGODB_DB ?? "mansur_platform";
 }
 
 // Vercel serverless ortaminda tekrar eden connection olusumunu global cache ile azaltir.

@@ -11,6 +11,10 @@ export async function telemetryReadingsCollection() {
   return db.collection<TelemetryReadingDocument>("telemetryReadings");
 }
 
+function readingSort() {
+  return { updatedAt: -1, cloudReceivedAtMs: -1, brokerReceivedAtMs: -1, createdAt: -1 } as const;
+}
+
 export async function insertTelemetryReading(input: Omit<TelemetryReadingDocument, "_id" | "createdAt">) {
   if (isStaticDataOnly()) {
     const store = await getStaticStore();
@@ -29,23 +33,21 @@ export async function listLatestReadings(limit = 20, deviceId?: string) {
     const store = await getStaticStore();
     return store.telemetryReadings
       .filter((reading) => !deviceId || reading.deviceId === deviceId)
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      .sort((a, b) => (b.updatedAt?.getTime?.() ?? b.createdAt?.getTime?.() ?? 0) - (a.updatedAt?.getTime?.() ?? a.createdAt?.getTime?.() ?? 0))
       .slice(0, limit);
   }
 
   try {
     const readings = await telemetryReadingsCollection();
-    const dbReadings = await readings
-      .find(deviceId ? { deviceId } : {})
-      .sort({ createdAt: -1 })
-      .limit(limit)
-      .toArray();
-    return dbReadings;
+    const query: Record<string, unknown> = { packetType: "telemetry" };
+    if (deviceId) query.deviceId = deviceId;
+
+    return readings.find(query).sort(readingSort()).limit(limit).toArray();
   } catch {
     const store = await getStaticStore();
     return store.telemetryReadings
       .filter((reading) => !deviceId || reading.deviceId === deviceId)
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      .sort((a, b) => (b.updatedAt?.getTime?.() ?? b.createdAt?.getTime?.() ?? 0) - (a.updatedAt?.getTime?.() ?? a.createdAt?.getTime?.() ?? 0))
       .slice(0, limit);
   }
 }
@@ -55,27 +57,27 @@ export async function listTelemetryHistory(input: { deviceId?: string; from?: Da
     const store = await getStaticStore();
     return store.telemetryReadings
       .filter((reading) => !input.deviceId || reading.deviceId === input.deviceId)
-      .filter((reading) => !input.from || reading.createdAt >= input.from)
-      .filter((reading) => !input.to || reading.createdAt <= input.to)
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      .filter((reading) => !input.from || (reading.createdAt ? reading.createdAt >= input.from : true))
+      .filter((reading) => !input.to || (reading.createdAt ? reading.createdAt <= input.to : true))
+      .sort((a, b) => (b.updatedAt?.getTime?.() ?? b.createdAt?.getTime?.() ?? 0) - (a.updatedAt?.getTime?.() ?? a.createdAt?.getTime?.() ?? 0))
       .slice(0, input.limit ?? 200);
   }
 
   try {
     const readings = await telemetryReadingsCollection();
-    const query: Record<string, unknown> = {};
+    const query: Record<string, unknown> = { packetType: "telemetry" };
     if (input.deviceId) query.deviceId = input.deviceId;
     if (input.from || input.to) {
-      query.createdAt = { ...(input.from ? { $gte: input.from } : {}), ...(input.to ? { $lte: input.to } : {}) };
+      query.updatedAt = { ...(input.from ? { $gte: input.from } : {}), ...(input.to ? { $lte: input.to } : {}) };
     }
-    return readings.find(query).sort({ createdAt: -1 }).limit(input.limit ?? 200).toArray();
+    return readings.find(query).sort(readingSort()).limit(input.limit ?? 200).toArray();
   } catch {
     const store = await getStaticStore();
     return store.telemetryReadings
       .filter((reading) => !input.deviceId || reading.deviceId === input.deviceId)
-      .filter((reading) => !input.from || reading.createdAt >= input.from)
-      .filter((reading) => !input.to || reading.createdAt <= input.to)
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      .filter((reading) => !input.from || (reading.createdAt ? reading.createdAt >= input.from : true))
+      .filter((reading) => !input.to || (reading.createdAt ? reading.createdAt <= input.to : true))
+      .sort((a, b) => (b.updatedAt?.getTime?.() ?? b.createdAt?.getTime?.() ?? 0) - (a.updatedAt?.getTime?.() ?? a.createdAt?.getTime?.() ?? 0))
       .slice(0, input.limit ?? 200);
   }
 }
